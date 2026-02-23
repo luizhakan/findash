@@ -3,7 +3,10 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ContaModule } from './conta/conta.module';
 import { PrismaModule } from './prisma/prisma.module';
+import { CartaoCreditoModule } from './cartao-credito/cartao-credito.module';
 import { CategoriaModule } from './categoria/categoria.module';
+import { DashboardModule } from './dashboard/dashboard.module';
+import { FaturaModule } from './fatura/fatura.module';
 import { TagModule } from './tag/tag.module';
 import { TransacaoModule } from './transacao/transacao.module';
 
@@ -14,6 +17,9 @@ import { TransacaoModule } from './transacao/transacao.module';
     CategoriaModule,
     TagModule,
     TransacaoModule,
+    DashboardModule,
+    CartaoCreditoModule,
+    FaturaModule,
   ],
   controllers: [AppController],
   providers: [AppService],
