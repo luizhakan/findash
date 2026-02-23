@@ -63,3 +63,28 @@ A proposta principal deste aplicativo é dar controle financeiro total ao usuár
 │   └── api/            # Back-end NestJS (Regras de negócio e rotas)
 ├── docker-compose.yml  # Configuração de containers (Postgres, API, etc)
 └── README.md
+
+## ⚙️ Setup local (estado atual)
+
+### Pré-requisitos
+
+- Node.js 20+
+- Docker + Docker Compose
+
+### Passos
+
+1. Instalar dependências: `npm install`
+2. Subir banco: `npm run db:up`
+3. Configurar ambiente da API: `cp apps/api/.env.example apps/api/.env`
+4. Aplicar migrations: `npm run prisma:migrate`
+5. Rodar API: `npm run dev:api`
+
+O PostgreSQL local está configurado para a porta `55432`.
+
+### Endpoint inicial implementado
+
+- `POST /contas`
+- `GET /contas?usuarioId=<uuid>`
+- `GET /contas/:id`
+- `PATCH /contas/:id`
+- `DELETE /contas/:id`
