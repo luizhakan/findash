@@ -7,6 +7,7 @@ import { Conta, StatusTransacao, TipoTransacao } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { ParserService, TransacaoParseada } from './parser.service';
 import { ImportarCsvDto } from './dto/importar-csv.dto';
+import { ResultadoImportacaoCsv } from './types/resultado-importacao-csv.type';
 
 @Injectable()
 export class ImportacaoService {
@@ -18,7 +19,7 @@ export class ImportacaoService {
   async procesarArquivoCsv(
     conteudoCsv: string,
     importarCsvDto: ImportarCsvDto,
-  ) {
+  ): Promise<ResultadoImportacaoCsv> {
     // Validar que o usuário existe
     const usuario = await this.prisma.usuario.findUnique({
       where: { id: importarCsvDto.usuarioId },

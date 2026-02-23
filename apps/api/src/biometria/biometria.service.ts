@@ -1,12 +1,19 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { PrismaClient } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { HabilitarBiometriaDto } from './dto/habilitar-biometria.dto';
 
 @Injectable()
 export class BiometriaService {
-  constructor(private readonly prisma: PrismaService) {}
+  private readonly prisma: PrismaClient;
 
-  async verificarStatusBiometria(usuarioId: string) {
+  constructor(prismaService: PrismaService) {
+    this.prisma = prismaService;
+  }
+
+  async verificarStatusBiometria(
+    usuarioId: string,
+  ): Promise<{ usuarioId: string; biometriaHabilitada: boolean }> {
     const usuario = await this.prisma.usuario.findUnique({
       where: { id: usuarioId },
       select: { id: true, biometriaHabilitada: true },
@@ -22,7 +29,13 @@ export class BiometriaService {
     };
   }
 
-  async habilitarBiometria(habilitarBiometriaDto: HabilitarBiometriaDto) {
+  async habilitarBiometria(
+    habilitarBiometriaDto: HabilitarBiometriaDto,
+  ): Promise<{
+    mensagem: string;
+    usuarioId: string;
+    biometriaHabilitada: boolean;
+  }> {
     const usuario = await this.prisma.usuario.findUnique({
       where: { id: habilitarBiometriaDto.usuarioId },
     });

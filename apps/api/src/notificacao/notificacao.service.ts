@@ -8,13 +8,20 @@ import {
   CriarNotificacaoDto,
   AtualizarNotificacaoDto,
 } from './dto/criar-notificacao.dto';
-import { TipoNotificacao } from '@prisma/client';
+import { Notificacao, PrismaClient, TipoNotificacao } from '@prisma/client';
 
 @Injectable()
 export class NotificacaoService {
-  constructor(private readonly prisma: PrismaService) {}
+  private readonly prisma: PrismaClient;
 
-  async obterNotificacoes(usuarioId: string, apenasNaoLidas = false) {
+  constructor(prismaService: PrismaService) {
+    this.prisma = prismaService;
+  }
+
+  async obterNotificacoes(
+    usuarioId: string,
+    apenasNaoLidas = false,
+  ): Promise<Notificacao[]> {
     const usuario = await this.prisma.usuario.findUnique({
       where: { id: usuarioId },
     });
@@ -23,7 +30,7 @@ export class NotificacaoService {
       throw new NotFoundException('Usuário não encontrado');
     }
 
-    return this.prisma.notificacao.findMany({
+    return await this.prisma.notificacao.findMany({
       where: {
         usuarioId,
         ...(apenasNaoLidas && { lido: false }),
@@ -33,7 +40,9 @@ export class NotificacaoService {
     });
   }
 
-  async criarNotificacao(criarNotificacaoDto: CriarNotificacaoDto) {
+  async criarNotificacao(
+    criarNotificacaoDto: CriarNotificacaoDto,
+  ): Promise<Notificacao> {
     const usuario = await this.prisma.usuario.findUnique({
       where: { id: criarNotificacaoDto.usuarioId },
     });
@@ -47,7 +56,7 @@ export class NotificacaoService {
       throw new BadRequestException('Data agendada não pode ser no passado');
     }
 
-    return this.prisma.notificacao.create({
+    return await this.prisma.notificacao.create({
       data: {
         usuarioId: criarNotificacaoDto.usuarioId,
         tipo: criarNotificacaoDto.tipo,
@@ -58,7 +67,7 @@ export class NotificacaoService {
     });
   }
 
-  async marcarComoLido(notificacaoId: string) {
+  async marcarComoLido(notificacaoId: string): Promise<Notificacao> {
     const notificacao = await this.prisma.notificacao.findUnique({
       where: { id: notificacaoId },
     });
@@ -67,13 +76,15 @@ export class NotificacaoService {
       throw new NotFoundException('Notificação não encontrada');
     }
 
-    return this.prisma.notificacao.update({
+    return await this.prisma.notificacao.update({
       where: { id: notificacaoId },
       data: { lido: true },
     });
   }
 
-  async marcarTodosComoLido(usuarioId: string) {
+  async marcarTodosComoLido(
+    usuarioId: string,
+  ): Promise<{ notificacoesAtualizadas: number; mensagem: string }> {
     const usuario = await this.prisma.usuario.findUnique({
       where: { id: usuarioId },
     });
@@ -96,7 +107,7 @@ export class NotificacaoService {
     };
   }
 
-  async desativarNotificacao(notificacaoId: string) {
+  async desativarNotificacao(notificacaoId: string): Promise<Notificacao> {
     const notificacao = await this.prisma.notificacao.findUnique({
       where: { id: notificacaoId },
     });
@@ -105,7 +116,7 @@ export class NotificacaoService {
       throw new NotFoundException('Notificação não encontrada');
     }
 
-    return this.prisma.notificacao.update({
+    return await this.prisma.notificacao.update({
       where: { id: notificacaoId },
       data: { ativo: false },
     });
@@ -114,7 +125,7 @@ export class NotificacaoService {
   async atualizarNotificacao(
     notificacaoId: string,
     atualizarNotificacaoDto: AtualizarNotificacaoDto,
-  ) {
+  ): Promise<Notificacao> {
     const notificacao = await this.prisma.notificacao.findUnique({
       where: { id: notificacaoId },
     });
@@ -123,7 +134,7 @@ export class NotificacaoService {
       throw new NotFoundException('Notificação não encontrada');
     }
 
-    return this.prisma.notificacao.update({
+    return await this.prisma.notificacao.update({
       where: { id: notificacaoId },
       data: {
         ...(atualizarNotificacaoDto.titulo && {
@@ -139,7 +150,9 @@ export class NotificacaoService {
     });
   }
 
-  async criarNotificacoesAutomaticasFaturaVencendo() {
+  async criarNotificacoesAutomaticasFaturaVencendo(): Promise<{
+    notificacoesGeradas: number;
+  }> {
     // Buscar faturas que vencem nos próximos 7 dias
     const proximosDias = new Date();
     proximosDias.setDate(proximosDias.getDate() + 7);
