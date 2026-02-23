@@ -1,0 +1,169 @@
+// -----------------------------------------------------------------
+// docs/schema.prisma (ou no futuro: apps/api/prisma/schema.prisma)
+// -----------------------------------------------------------------
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL") // A URL do banco virá do seu arquivo .env
+}
+
+// ==========================================
+// ENUMS (Domínios de Valores)
+// ==========================================
+
+enum StatusFatura {
+  ABERTA
+  FECHADA
+  PAGA
+}
+
+enum TipoTransacao {
+  RECEITA
+  DESPESA
+  TRANSFERENCIA
+}
+
+enum StatusTransacao {
+  EFETIVADA
+  PENDENTE
+}
+
+enum TipoCategoria {
+  RECEITA
+  DESPESA
+}
+
+// ==========================================
+// MODELOS (Tabelas)
+// ==========================================
+
+model Usuario {
+  id         String   @id @default(uuid()) @db.Uuid
+  nome       String
+  email      String   @unique
+  senhaHash  String   @map("senha_hash")
+  criadoEm   DateTime @default(now()) @map("criado_em")
+
+  // Relacionamentos
+  contas        Conta[]
+  cartoes       CartaoCredito[]
+  categorias    Categoria[]
+  tags          Tag[]
+  transacoes    Transacao[]
+
+  @@map("usuarios") // Nome da tabela real no PostgreSQL
+}
+
+model Conta {
+  id                 String      @id @default(uuid()) @db.Uuid
+  usuarioId          String      @map("usuario_id") @db.Uuid
+  nome               String
+  saldoInicial       Decimal     @default(0.0) @map("saldo_inicial") @db.Decimal(10, 2)
+  incluirSomaTotal   Boolean     @default(true) @map("incluir_soma_total")
+  corHex             String?     @map("cor_hex")
+
+  usuario            Usuario     @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+
+  // Uma conta pode ter transacoes onde o dinheiro sai (Origem) ou entra (Destino em transferências)
+  transacoesOrigem   Transacao[] @relation("ContaOrigem")
+  transacoesDestino  Transacao[] @relation("ContaDestino")
+  cartoesPagamento   CartaoCredito[]
+
+  @@map("contas")
+}
+
+model CartaoCredito {
+  id                 String        @id @default(uuid()) @db.Uuid
+  usuarioId          String        @map("usuario_id") @db.Uuid
+  nome               String
+  limite             Decimal       @db.Decimal(10, 2)
+  diaFechamento      Int           @map("dia_fechamento")
+  diaVencimento      Int           @map("dia_vencimento")
+  contaPagamentoId   String?       @map("conta_pagamento_id") @db.Uuid
+
+  usuario            Usuario       @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  contaPagamento     Conta?        @relation(fields: [contaPagamentoId], references: [id], onDelete: SetNull)
+  faturas            Fatura[]
+
+  @@map("cartoes_credito")
+}
+
+model Fatura {
+  id          String        @id @default(uuid()) @db.Uuid
+  cartaoId    String        @map("cartao_id") @db.Uuid
+  mes         Int
+  ano         Int
+  status      StatusFatura  @default(ABERTA)
+
+  cartao      CartaoCredito @relation(fields: [cartaoId], references: [id], onDelete: Cascade)
+  transacoes  Transacao[]
+
+  @@unique([cartaoId, mes, ano]) // Impede que existam duas faturas pro mesmo mês no mesmo cartão
+  @@map("faturas")
+}
+
+model Transacao {
+  id               String           @id @default(uuid()) @db.Uuid
+  usuarioId        String           @map("usuario_id") @db.Uuid
+  tipo             TipoTransacao
+  status           StatusTransacao
+  valor            Decimal          @db.Decimal(10, 2)
+  dataOcorrencia   DateTime         @map("data_ocorrencia")
+  descricao        String
+  contaId          String?          @map("conta_id") @db.Uuid
+  contaDestinoId   String?          @map("conta_destino_id") @db.Uuid // Apenas para Tipo = TRANSFERENCIA
+  faturaId         String?          @map("fatura_id") @db.Uuid        // Apenas para compras no Crédito
+  categoriaId      String?          @map("categoria_id") @db.Uuid
+
+  // Parcelamento
+  parcelaAtual     Int?             @map("parcela_atual")
+  totalParcelas    Int?             @map("total_parcelas")
+
+  // Anti-duplicidade na importação
+  hashImportacao   String?          @unique @map("hash_importacao")
+
+  // Extras
+  notas            String?          @db.Text
+  anexoBase64      String?          @db.Text @map("anexo_base64")
+
+  // Relacionamentos
+  usuario          Usuario          @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  conta            Conta?           @relation("ContaOrigem", fields: [contaId], references: [id], onDelete: SetNull)
+  contaDestino     Conta?           @relation("ContaDestino", fields: [contaDestinoId], references: [id], onDelete: SetNull)
+  fatura           Fatura?          @relation(fields: [faturaId], references: [id], onDelete: SetNull)
+  categoria        Categoria?       @relation(fields: [categoriaId], references: [id], onDelete: SetNull)
+
+  // Prisma cria a tabela pivô N:M (Transacao_Tag) automaticamente nos bastidores!
+  tags             Tag[]
+
+  @@map("transacoes")
+}
+
+model Categoria {
+  id          String         @id @default(uuid()) @db.Uuid
+  usuarioId   String?        @map("usuario_id") @db.Uuid // Nulo se for categoria padrão do sistema
+  nome        String
+  tipo        TipoCategoria
+  corHex      String?        @map("cor_hex")
+  icone       String?
+
+  usuario     Usuario?       @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  transacoes  Transacao[]
+
+  @@map("categorias")
+}
+
+model Tag {
+  id          String       @id @default(uuid()) @db.Uuid
+  usuarioId   String       @map("usuario_id") @db.Uuid
+  nome        String
+
+  usuario     Usuario      @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  transacoes  Transacao[]
+
+  @@map("tags")
+}
