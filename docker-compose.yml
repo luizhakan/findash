@@ -11,6 +11,27 @@ services:
       - '55432:5432'
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U findash -d findash']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: ./apps/api
+      dockerfile: Dockerfile
+    container_name: findash-api
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://findash:findash@postgres:5432/findash?schema=public
+      PORT: 3005
+      NODE_ENV: production
+    ports:
+      - '3005:3005'
 
 volumes:
   postgres_data:
