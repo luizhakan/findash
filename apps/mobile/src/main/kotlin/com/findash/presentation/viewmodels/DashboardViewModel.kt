@@ -2,6 +2,10 @@ package com.findash.presentation.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.findash.data.local.SessionManager
+import com.findash.data.repositories.DashboardRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -14,7 +18,11 @@ data class DashboardUiState(
     val errorMessage: String? = null
 )
 
-class DashboardViewModel : ViewModel() {
+@HiltViewModel
+class DashboardViewModel @Inject constructor(
+    private val dashboardRepository: DashboardRepository,
+    private val sessionManager: SessionManager,
+) : ViewModel() {
     private val _uiState = MutableStateFlow(DashboardUiState())
     val uiState: StateFlow<DashboardUiState> = _uiState
 
@@ -26,12 +34,21 @@ class DashboardViewModel : ViewModel() {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null)
             try {
-                // TODO: Implementar chamada à API de dashboard
+                val usuarioId = sessionManager.obterUsuarioId()
+                if (usuarioId.isNullOrBlank()) {
+                    _uiState.value = _uiState.value.copy(
+                        isLoading = false,
+                        errorMessage = "Sessão inválida. Faça login novamente.",
+                    )
+                    return@launch
+                }
+
+                val dashboard = dashboardRepository.obterDashboard(usuarioId)
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
-                    saldoTotal = 5000.0,
-                    receitaMes = 3000.0,
-                    despesaMes = 1500.0
+                    saldoTotal = dashboard.saldoTotal,
+                    receitaMes = dashboard.receitaMes,
+                    despesaMes = dashboard.despesaMes,
                 )
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(

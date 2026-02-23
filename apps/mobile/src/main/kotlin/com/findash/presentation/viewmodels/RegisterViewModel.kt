@@ -2,7 +2,9 @@ package com.findash.presentation.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.delay
+import com.findash.data.repositories.AutenticacaoRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -17,7 +19,10 @@ data class RegisterUiState(
     val isRegisterSuccess: Boolean = false,
 )
 
-class RegisterViewModel : ViewModel() {
+@HiltViewModel
+class RegisterViewModel @Inject constructor(
+    private val autenticacaoRepository: AutenticacaoRepository,
+) : ViewModel() {
     private val _uiState = MutableStateFlow(RegisterUiState())
     val uiState: StateFlow<RegisterUiState> = _uiState
 
@@ -64,8 +69,11 @@ class RegisterViewModel : ViewModel() {
             _uiState.value = state.copy(isLoading = true, errorMessage = null)
 
             try {
-                // TODO: Integrar com endpoint real de cadastro na API
-                delay(600)
+                autenticacaoRepository.fazerRegistro(
+                    email = state.email.trim(),
+                    senha = state.senha,
+                    nome = state.nome.trim(),
+                )
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
                     isRegisterSuccess = true,

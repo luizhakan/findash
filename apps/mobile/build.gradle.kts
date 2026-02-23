@@ -5,6 +5,17 @@ plugins {
     kotlin("kapt")
 }
 
+val configuredApiBaseUrl = (
+    providers.gradleProperty("FINDASH_API_BASE_URL").orNull
+        ?: System.getenv("FINDASH_API_BASE_URL")
+        ?: "https://example.invalid/"
+)
+val apiBaseUrl = if (configuredApiBaseUrl.endsWith("/")) {
+    configuredApiBaseUrl
+} else {
+    "$configuredApiBaseUrl/"
+}
+
 android {
     namespace = "com.findash"
     compileSdk = 35
@@ -15,7 +26,7 @@ android {
         targetSdk = 35
         versionCode = 1
         versionName = "1.0.0"
-        buildConfigField("String", "API_BASE_URL", "\"http://127.0.0.1:3005/\"")
+        buildConfigField("String", "API_BASE_URL", "\"$apiBaseUrl\"")
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {

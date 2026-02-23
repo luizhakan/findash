@@ -4,3 +4,5 @@
 android.useNewApkCreator=true
 android.enableBuildCache=true
 org.gradle.jvmargs=-Xmx4096m -XX:MaxPermSize=1024m
+# URL da API usada no build local:
+# FINDASH_API_BASE_URL=https://findash.seudominio.com/

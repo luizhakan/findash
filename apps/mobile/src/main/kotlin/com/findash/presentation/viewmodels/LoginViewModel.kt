@@ -2,6 +2,9 @@ package com.findash.presentation.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.findash.data.repositories.AutenticacaoRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -14,7 +17,10 @@ data class LoginUiState(
     val isLoginSuccess: Boolean = false
 )
 
-class LoginViewModel : ViewModel() {
+@HiltViewModel
+class LoginViewModel @Inject constructor(
+    private val autenticacaoRepository: AutenticacaoRepository,
+) : ViewModel() {
     private val _uiState = MutableStateFlow(LoginUiState())
     val uiState: StateFlow<LoginUiState> = _uiState
 
@@ -28,9 +34,17 @@ class LoginViewModel : ViewModel() {
 
     fun login() {
         viewModelScope.launch {
+            if (_uiState.value.email.isBlank() || _uiState.value.senha.isBlank()) {
+                _uiState.value = _uiState.value.copy(errorMessage = "Informe email e senha")
+                return@launch
+            }
+
             _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null)
             try {
-                // TODO: Implementar chamada à API
+                autenticacaoRepository.fazerLogin(
+                    email = _uiState.value.email.trim(),
+                    senha = _uiState.value.senha,
+                )
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
                     isLoginSuccess = true

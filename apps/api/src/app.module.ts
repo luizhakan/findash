@@ -12,6 +12,7 @@ import { TransacaoModule } from './transacao/transacao.module';
 import { ImportacaoModule } from './importacao/importacao.module';
 import { BiometriaModule } from './biometria/biometria.module';
 import { NotificacaoModule } from './notificacao/notificacao.module';
+import { AutenticacaoModule } from './autenticacao/autenticacao.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { NotificacaoModule } from './notificacao/notificacao.module';
     ImportacaoModule,
     BiometriaModule,
     NotificacaoModule,
+    AutenticacaoModule,
   ],
   controllers: [AppController],
   providers: [AppService],
