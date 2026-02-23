@@ -2,6 +2,10 @@ package com.findash.presentation.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.findash.data.local.SessionManager
+import com.findash.data.repositories.BiometriaRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -13,18 +17,30 @@ data class BiometriaUiState(
     val mensagemSucesso: String? = null
 )
 
-class BiometriaViewModel : ViewModel() {
+@HiltViewModel
+class BiometriaViewModel @Inject constructor(
+    private val biometriaRepository: BiometriaRepository,
+    private val sessionManager: SessionManager,
+) : ViewModel() {
     private val _uiState = MutableStateFlow(BiometriaUiState())
     val uiState: StateFlow<BiometriaUiState> = _uiState
 
-    fun verificarStatusBiometria(usuarioId: String) {
+    fun verificarStatusBiometria() {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null)
             try {
-                // TODO: Chamar repositório para verificar status
+                val usuarioId = sessionManager.obterUsuarioId()
+                if (usuarioId.isNullOrBlank()) {
+                    _uiState.value = _uiState.value.copy(
+                        isLoading = false,
+                        errorMessage = "Sessão inválida. Faça login novamente."
+                    )
+                    return@launch
+                }
+                val resposta = biometriaRepository.verificarStatusBiometria(usuarioId)
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
-                    biometriaHabilitada = false // Carregar do repositório
+                    biometriaHabilitada = resposta.biometriaHabilitada
                 )
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(
@@ -35,11 +51,19 @@ class BiometriaViewModel : ViewModel() {
         }
     }
 
-    fun habilitarBiometria(usuarioId: String, habilitada: Boolean) {
+    fun habilitarBiometria(habilitada: Boolean) {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null)
             try {
-                // TODO: Chamar repositório para habilitar/desabilitar
+                val usuarioId = sessionManager.obterUsuarioId()
+                if (usuarioId.isNullOrBlank()) {
+                    _uiState.value = _uiState.value.copy(
+                        isLoading = false,
+                        errorMessage = "Sessão inválida. Faça login novamente."
+                    )
+                    return@launch
+                }
+                biometriaRepository.habilitarBiometria(usuarioId, habilitada)
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
                     biometriaHabilitada = habilitada,

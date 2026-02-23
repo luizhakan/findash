@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
@@ -27,22 +26,20 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.fragment.app.FragmentActivity
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.findash.presentation.viewmodels.BiometriaViewModel
-import java.util.concurrent.Executor
 
 @Composable
 fun BiometriaScreen(
     navController: NavHostController,
-    usuarioId: String,
-    viewModel: BiometriaViewModel = viewModel()
+    viewModel: BiometriaViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val context = LocalContext.current
 
     LaunchedEffect(Unit) {
-        viewModel.verificarStatusBiometria(usuarioId)
+        viewModel.verificarStatusBiometria()
     }
 
     Column(
@@ -58,9 +55,11 @@ fun BiometriaScreen(
         )
 
         if (uiState.isLoading) {
-            CircularProgressIndicator(
-                modifier = Modifier.align(Alignment.CenterHorizontally),
-                color = MaterialTheme.colorScheme.primary
+            Text(
+                text = "Carregando...",
+                color = MaterialTheme.colorScheme.primary,
+                style = MaterialTheme.typography.bodyMedium,
+                modifier = Modifier.align(Alignment.CenterHorizontally)
             )
         } else {
             Card(
@@ -95,7 +94,7 @@ fun BiometriaScreen(
                         Switch(
                             checked = uiState.biometriaHabilitada,
                             onCheckedChange = { habilitada ->
-                                viewModel.habilitarBiometria(usuarioId, habilitada)
+                                viewModel.habilitarBiometria(habilitada)
                             }
                         )
                     }

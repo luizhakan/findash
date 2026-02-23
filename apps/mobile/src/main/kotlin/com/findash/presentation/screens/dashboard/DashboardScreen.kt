@@ -12,12 +12,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -27,33 +28,41 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
+import com.findash.presentation.navigation.NavigationRoute
 import com.findash.presentation.viewmodels.DashboardViewModel
 
 @Composable
 fun DashboardScreen(
     navController: NavHostController,
-    viewModel: DashboardViewModel = hiltViewModel()
+    viewModel: DashboardViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsState()
+
+    LaunchedEffect(uiState.isLogoutSuccess) {
+        if (uiState.isLogoutSuccess) {
+            navController.navigate(NavigationRoute.LoginScreen.route) {
+                popUpTo(NavigationRoute.DashboardScreen.route) { inclusive = true }
+            }
+        }
+    }
 
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
-            .verticalScroll(rememberScrollState())
+            .verticalScroll(rememberScrollState()),
     ) {
-        // Header
         Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .background(MaterialTheme.colorScheme.primary)
                 .padding(24.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Text(
                 text = "Bem-vindo!",
                 style = MaterialTheme.typography.titleLarge,
-                color = MaterialTheme.colorScheme.background
+                color = MaterialTheme.colorScheme.background,
             )
         }
 
@@ -61,105 +70,150 @@ fun DashboardScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(24.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+            verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             if (uiState.isLoading) {
-                CircularProgressIndicator(
+                Text(
+                    text = "Carregando dados...",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.align(Alignment.CenterHorizontally),
-                    color = MaterialTheme.colorScheme.primary
                 )
             } else {
-                // Card de Saldo Total
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp),
                     colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.surface
-                    )
+                        containerColor = MaterialTheme.colorScheme.surface,
+                    ),
                 ) {
                     Column(
                         modifier = Modifier.padding(16.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
+                        horizontalAlignment = Alignment.CenterHorizontally,
                     ) {
                         Text(
                             text = "Saldo Total",
                             style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.secondary
+                            color = MaterialTheme.colorScheme.secondary,
                         )
                         Text(
-                            text = "R$ ${String.format("%.2f", uiState.saldoTotal)}",
+                            text = "R$ ${"%.2f".format(uiState.saldoTotal)}",
                             style = MaterialTheme.typography.displayMedium,
-                            color = MaterialTheme.colorScheme.primary
+                            color = MaterialTheme.colorScheme.primary,
                         )
                     }
                 }
 
-                // Cards de Receita e Despesa
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
                 ) {
                     Card(
-                        modifier = Modifier
-                            .weight(1f),
+                        modifier = Modifier.weight(1f),
                         shape = RoundedCornerShape(12.dp),
                         colors = CardDefaults.cardColors(
-                            containerColor = Color(0x1510B981)
-                        )
+                            containerColor = Color(0x1510B981),
+                        ),
                     ) {
                         Column(
                             modifier = Modifier.padding(16.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally
+                            horizontalAlignment = Alignment.CenterHorizontally,
                         ) {
                             Text(
                                 text = "Receita",
                                 style = MaterialTheme.typography.labelSmall,
-                                color = Color(0xFF10B981)
+                                color = Color(0xFF10B981),
                             )
                             Text(
-                                text = "R$ ${String.format("%.2f", uiState.receitaMes)}",
+                                text = "R$ ${"%.2f".format(uiState.receitaMes)}",
                                 style = MaterialTheme.typography.titleMedium,
                                 color = Color(0xFF10B981),
-                                fontWeight = FontWeight.Bold
+                                fontWeight = FontWeight.Bold,
                             )
                         }
                     }
 
                     Card(
-                        modifier = Modifier
-                            .weight(1f),
+                        modifier = Modifier.weight(1f),
                         shape = RoundedCornerShape(12.dp),
                         colors = CardDefaults.cardColors(
-                            containerColor = Color(0x15EF4444)
-                        )
+                            containerColor = Color(0x15EF4444),
+                        ),
                     ) {
                         Column(
                             modifier = Modifier.padding(16.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally
+                            horizontalAlignment = Alignment.CenterHorizontally,
                         ) {
                             Text(
                                 text = "Despesa",
                                 style = MaterialTheme.typography.labelSmall,
-                                color = Color(0xFFEF4444)
+                                color = Color(0xFFEF4444),
                             )
                             Text(
-                                text = "R$ ${String.format("%.2f", uiState.despesaMes)}",
+                                text = "R$ ${"%.2f".format(uiState.despesaMes)}",
                                 style = MaterialTheme.typography.titleMedium,
                                 color = Color(0xFFEF4444),
-                                fontWeight = FontWeight.Bold
+                                fontWeight = FontWeight.Bold,
                             )
                         }
                     }
                 }
+            }
 
-                // Card Vazio para expandir
-                Spacer(modifier = Modifier.height(32.dp))
+            if (!uiState.errorMessage.isNullOrBlank()) {
                 Text(
-                    text = "Funcionalidades em desenvolvimento",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.secondary,
-                    modifier = Modifier.align(Alignment.CenterHorizontally)
+                    text = uiState.errorMessage ?: "",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.error,
                 )
+                Button(
+                    onClick = viewModel::recarregarDados,
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    Text("Tentar novamente")
+                }
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Button(
+                onClick = { navController.navigate(NavigationRoute.ContasScreen.route) },
+                modifier = Modifier.fillMaxWidth(),
+                enabled = !uiState.isLoading,
+            ) {
+                Text("Gerenciar contas")
+            }
+
+            Button(
+                onClick = { navController.navigate(NavigationRoute.TransacoesScreen.route) },
+                modifier = Modifier.fillMaxWidth(),
+                enabled = !uiState.isLoading,
+            ) {
+                Text("Gerenciar transações")
+            }
+
+            Button(
+                onClick = { navController.navigate(NavigationRoute.NotificacoesScreen.route) },
+                modifier = Modifier.fillMaxWidth(),
+                enabled = !uiState.isLoading,
+            ) {
+                Text("Notificações")
+            }
+
+            Button(
+                onClick = { navController.navigate(NavigationRoute.BiometriaScreen.route) },
+                modifier = Modifier.fillMaxWidth(),
+                enabled = !uiState.isLoading,
+            ) {
+                Text("Biometria")
+            }
+
+            Button(
+                onClick = viewModel::sair,
+                modifier = Modifier.fillMaxWidth(),
+                enabled = !uiState.isLoading,
+            ) {
+                Text("Sair")
             }
         }
     }

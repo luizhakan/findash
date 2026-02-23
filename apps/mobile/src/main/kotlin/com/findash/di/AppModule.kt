@@ -2,14 +2,25 @@ package com.findash.di
 
 import com.findash.BuildConfig
 import com.findash.data.remote.FinDashApiService
+import com.findash.data.remote.StringOrNumberToDoubleAdapter
 import com.findash.data.repositories.AutenticacaoRepository
 import com.findash.data.repositories.AutenticacaoRepositoryImpl
+import com.findash.data.repositories.BiometriaRepositoryImpl
+import com.findash.data.repositories.BiometriaRepository
+import com.findash.data.repositories.ContaRepositoryImpl
+import com.findash.data.repositories.ContaRepository
 import com.findash.data.repositories.DashboardRepository
 import com.findash.data.repositories.DashboardRepositoryImpl
+import com.findash.data.repositories.NotificacaoRepository
+import com.findash.data.repositories.NotificacaoRepositoryImpl
+import com.findash.data.repositories.TransacaoRepository
+import com.findash.data.repositories.TransacaoRepositoryImpl
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import com.google.gson.Gson
+import com.google.gson.GsonBuilder
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -46,11 +57,20 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideRetrofit(okHttpClient: OkHttpClient): Retrofit {
+    fun provideGson(): Gson {
+        return GsonBuilder()
+            .registerTypeAdapter(Double::class.java, StringOrNumberToDoubleAdapter())
+            .registerTypeAdapter(java.lang.Double::class.java, StringOrNumberToDoubleAdapter())
+            .create()
+    }
+
+    @Provides
+    @Singleton
+    fun provideRetrofit(okHttpClient: OkHttpClient, gson: Gson): Retrofit {
         return Retrofit.Builder()
             .baseUrl(BuildConfig.API_BASE_URL)
             .client(okHttpClient)
-            .addConverterFactory(GsonConverterFactory.create())
+            .addConverterFactory(GsonConverterFactory.create(gson))
             .build()
     }
 
@@ -75,5 +95,36 @@ object AppModule {
     ): DashboardRepository {
         return repositoryImpl
     }
-}
 
+    @Provides
+    @Singleton
+    fun provideContaRepository(
+        repositoryImpl: ContaRepositoryImpl,
+    ): ContaRepository {
+        return repositoryImpl
+    }
+
+    @Provides
+    @Singleton
+    fun provideTransacaoRepository(
+        repositoryImpl: TransacaoRepositoryImpl,
+    ): TransacaoRepository {
+        return repositoryImpl
+    }
+
+    @Provides
+    @Singleton
+    fun provideBiometriaRepository(
+        repositoryImpl: BiometriaRepositoryImpl,
+    ): BiometriaRepository {
+        return repositoryImpl
+    }
+
+    @Provides
+    @Singleton
+    fun provideNotificacaoRepository(
+        repositoryImpl: NotificacaoRepositoryImpl,
+    ): NotificacaoRepository {
+        return repositoryImpl
+    }
+}

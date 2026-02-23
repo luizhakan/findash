@@ -3,6 +3,7 @@ package com.findash.presentation.viewmodels
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.findash.data.local.SessionManager
+import com.findash.data.repositories.AutenticacaoRepository
 import com.findash.data.repositories.DashboardRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
@@ -15,18 +16,24 @@ data class DashboardUiState(
     val receitaMes: Double = 0.0,
     val despesaMes: Double = 0.0,
     val isLoading: Boolean = false,
-    val errorMessage: String? = null
+    val errorMessage: String? = null,
+    val isLogoutSuccess: Boolean = false,
 )
 
 @HiltViewModel
 class DashboardViewModel @Inject constructor(
     private val dashboardRepository: DashboardRepository,
     private val sessionManager: SessionManager,
+    private val autenticacaoRepository: AutenticacaoRepository,
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(DashboardUiState())
     val uiState: StateFlow<DashboardUiState> = _uiState
 
     init {
+        carregarDados()
+    }
+
+    fun recarregarDados() {
         carregarDados()
     }
 
@@ -54,6 +61,19 @@ class DashboardViewModel @Inject constructor(
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
                     errorMessage = e.message ?: "Erro ao carregar dashboard"
+                )
+            }
+        }
+    }
+
+    fun sair() {
+        viewModelScope.launch {
+            try {
+                autenticacaoRepository.fazerLogout()
+                _uiState.value = _uiState.value.copy(isLogoutSuccess = true)
+            } catch (e: Exception) {
+                _uiState.value = _uiState.value.copy(
+                    errorMessage = e.message ?: "Erro ao sair"
                 )
             }
         }

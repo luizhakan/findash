@@ -23,8 +23,21 @@ interface AutenticacaoRepository {
 
 interface TransacaoRepository {
     suspend fun obterTransacoes(usuarioId: String): List<TransacaoResponse>
-    suspend fun criarTransacao(usuarioId: String, descricao: String, valor: Double): TransacaoResponse
-    suspend fun atualizarTransacao(id: String, descricao: String, valor: Double): TransacaoResponse
+    suspend fun criarTransacao(
+        usuarioId: String,
+        contaId: String,
+        descricao: String,
+        valor: Double,
+        tipo: String,
+        status: String = "EFETIVADA",
+    ): TransacaoResponse
+    suspend fun atualizarTransacao(
+        id: String,
+        descricao: String,
+        valor: Double,
+        tipo: String,
+        status: String,
+    ): TransacaoResponse
     suspend fun removerTransacao(id: String)
 }
 
@@ -47,4 +60,3 @@ interface NotificacaoRepository {
     suspend fun marcarTodosComoLido(usuarioId: String): Map<String, Any>
     suspend fun desativarNotificacao(notificacaoId: String): NotificacaoResponse
 }
-

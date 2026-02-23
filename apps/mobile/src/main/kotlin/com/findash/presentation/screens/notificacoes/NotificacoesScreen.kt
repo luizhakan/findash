@@ -17,7 +17,6 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -30,7 +29,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.findash.data.models.NotificacaoResponse
 import com.findash.presentation.viewmodels.NotificacaoViewModel
@@ -38,163 +37,160 @@ import com.findash.presentation.viewmodels.NotificacaoViewModel
 @Composable
 fun NotificacoesScreen(
     navController: NavHostController,
-    usuarioId: String,
-    viewModel: NotificacaoViewModel = viewModel()
+    viewModel: NotificacaoViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
     LaunchedEffect(Unit) {
-        viewModel.carregarNotificacoes(usuarioId)
+        viewModel.carregarNotificacoes()
     }
 
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
-            .padding(16.dp)
+            .padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        // Header
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
         ) {
             Column {
                 Text(
                     text = "Notificações",
                     style = MaterialTheme.typography.displaySmall,
-                    color = MaterialTheme.colorScheme.primary
+                    color = MaterialTheme.colorScheme.primary,
                 )
                 if (uiState.notificacoesNaoLidas > 0) {
                     Text(
                         text = "${uiState.notificacoesNaoLidas} não lidas",
                         style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.secondary
+                        color = MaterialTheme.colorScheme.secondary,
                     )
                 }
             }
 
             if (uiState.notificacoesNaoLidas > 0) {
-                Button(
-                    onClick = { viewModel.marcarTodosComoLido(usuarioId) }
-                ) {
-                    Text("Marcar como lidas")
+                Button(onClick = viewModel::marcarTodosComoLido) {
+                    Text("Marcar lidas")
                 }
             }
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
-
         if (uiState.isLoading) {
-            CircularProgressIndicator(
+            Text(
+                text = "Carregando...",
+                color = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.align(Alignment.CenterHorizontally),
-                color = MaterialTheme.colorScheme.primary
             )
         } else if (uiState.notificacoes.isEmpty()) {
             Column(
                 modifier = Modifier
-                    .fillMaxSize()
-                    .padding(32.dp),
+                    .fillMaxWidth()
+                    .padding(24.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
+                verticalArrangement = Arrangement.Center,
             ) {
                 Text(
                     text = "Nenhuma notificação",
                     style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.secondary
+                    color = MaterialTheme.colorScheme.secondary,
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    text = "Você está em dia com suas notificações",
+                    text = "Você está em dia com seus alertas",
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.secondary
+                    color = MaterialTheme.colorScheme.secondary,
                 )
             }
         } else {
             LazyColumn(
+                modifier = Modifier.weight(1f),
                 verticalArrangement = Arrangement.spacedBy(12.dp),
-                modifier = Modifier.fillMaxWidth()
             ) {
                 items(uiState.notificacoes) { notificacao ->
                     NotificacaoItem(
                         notificacao = notificacao,
                         onMarcarComoLido = { viewModel.marcarComoLido(notificacao.id) },
-                        onRemover = { viewModel.desativarNotificacao(notificacao.id) }
+                        onRemover = { viewModel.desativarNotificacao(notificacao.id) },
                     )
                 }
             }
         }
 
-        if (uiState.errorMessage != null) {
-            Spacer(modifier = Modifier.height(16.dp))
+        if (!uiState.errorMessage.isNullOrBlank()) {
             Text(
-                text = uiState.errorMessage!!,
+                text = uiState.errorMessage ?: "",
                 color = MaterialTheme.colorScheme.error,
-                style = MaterialTheme.typography.bodySmall
+                style = MaterialTheme.typography.bodySmall,
             )
         }
 
-        if (uiState.mensagemSucesso != null) {
-            Spacer(modifier = Modifier.height(16.dp))
+        if (!uiState.mensagemSucesso.isNullOrBlank()) {
             Text(
-                text = uiState.mensagemSucesso!!,
+                text = uiState.mensagemSucesso ?: "",
                 color = MaterialTheme.colorScheme.primary,
-                style = MaterialTheme.typography.bodySmall
+                style = MaterialTheme.typography.bodySmall,
             )
             LaunchedEffect(uiState.mensagemSucesso) {
                 viewModel.limparMensagem()
             }
         }
+
+        Button(
+            onClick = { navController.popBackStack() },
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            Text("Voltar")
+        }
     }
 }
 
 @Composable
-fun NotificacaoItem(
+private fun NotificacaoItem(
     notificacao: NotificacaoResponse,
     onMarcarComoLido: () -> Unit,
-    onRemover: () -> Unit
+    onRemover: () -> Unit,
 ) {
     Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(
-                if (!notificacao.lido) MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
-                else MaterialTheme.colorScheme.surface
-            ),
+        modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(8.dp),
         colors = CardDefaults.cardColors(
-            containerColor = if (!notificacao.lido) 
-                MaterialTheme.colorScheme.primary.copy(alpha = 0.1f) 
-            else 
+            containerColor = if (!notificacao.lido) {
+                MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
+            } else {
                 MaterialTheme.colorScheme.surface
-        )
+            },
+        ),
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(12.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.Top
+            verticalAlignment = Alignment.Top,
         ) {
             Column(
                 modifier = Modifier.weight(1f),
-                verticalArrangement = Arrangement.spacedBy(4.dp)
+                verticalArrangement = Arrangement.spacedBy(4.dp),
             ) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
+                    verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Text(
                         text = notificacao.titulo,
                         style = MaterialTheme.typography.titleSmall,
                         fontWeight = if (!notificacao.lido) FontWeight.Bold else FontWeight.Normal,
-                        color = MaterialTheme.colorScheme.primary
+                        color = MaterialTheme.colorScheme.primary,
                     )
                     if (!notificacao.lido) {
                         Button(
                             onClick = onMarcarComoLido,
-                            modifier = Modifier.padding(start = 8.dp)
+                            modifier = Modifier.padding(start = 8.dp),
                         ) {
                             Text("Lido", style = MaterialTheme.typography.labelSmall)
                         }
@@ -205,14 +201,14 @@ fun NotificacaoItem(
                     Text(
                         text = notificacao.descricao,
                         style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.secondary
+                        color = MaterialTheme.colorScheme.secondary,
                     )
                 }
 
                 Text(
                     text = notificacao.dataAgendada,
                     style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.secondary
+                    color = MaterialTheme.colorScheme.secondary,
                 )
             }
 
@@ -220,7 +216,7 @@ fun NotificacaoItem(
                 Icon(
                     imageVector = Icons.Default.Close,
                     contentDescription = "Remover",
-                    tint = MaterialTheme.colorScheme.secondary
+                    tint = MaterialTheme.colorScheme.secondary,
                 )
             }
         }

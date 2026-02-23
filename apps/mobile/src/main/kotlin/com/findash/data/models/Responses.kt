@@ -25,7 +25,7 @@ data class TransacaoResponse(
     val id: String,
     val usuarioId: String,
     val contaId: String?,
-    val categoryId: String?,
+    val categoriaId: String?,
     val tipo: String,
     val status: String,
     val valor: Double,

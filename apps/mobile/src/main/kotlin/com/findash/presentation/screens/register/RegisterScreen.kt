@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -115,7 +114,11 @@ fun RegisterScreen(
         Spacer(modifier = Modifier.height(20.dp))
 
         if (uiState.isLoading) {
-            CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
+            Text(
+                text = "Carregando...",
+                color = MaterialTheme.colorScheme.primary,
+                style = MaterialTheme.typography.bodyMedium,
+            )
         } else {
             Button(
                 onClick = { viewModel.cadastrar() },

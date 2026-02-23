@@ -8,20 +8,34 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.findash.presentation.navigation.NavigationRoute
-import kotlinx.coroutines.delay
+import com.findash.presentation.viewmodels.SplashViewModel
 
 @Composable
-fun SplashScreen(navController: NavHostController) {
-    LaunchedEffect(Unit) {
-        delay(2000) // 2 segundos
-        navController.navigate(NavigationRoute.LoginScreen.route) {
-            popUpTo(NavigationRoute.SplashScreen.route) { inclusive = true }
+fun SplashScreen(
+    navController: NavHostController,
+    viewModel: SplashViewModel = hiltViewModel(),
+) {
+    val uiState by viewModel.uiState.collectAsState()
+
+    LaunchedEffect(uiState.carregando, uiState.autenticado) {
+        if (!uiState.carregando) {
+            val destino = if (uiState.autenticado) {
+                NavigationRoute.DashboardScreen.route
+            } else {
+                NavigationRoute.LoginScreen.route
+            }
+            navController.navigate(destino) {
+                popUpTo(NavigationRoute.SplashScreen.route) { inclusive = true }
+            }
         }
     }
 
@@ -39,7 +53,7 @@ fun SplashScreen(navController: NavHostController) {
             color = MaterialTheme.colorScheme.background
         )
         Text(
-            text = "Controle Financeiro",
+            text = if (uiState.carregando) "Carregando..." else "Controle Financeiro",
             fontSize = 16.sp,
             color = MaterialTheme.colorScheme.background
         )

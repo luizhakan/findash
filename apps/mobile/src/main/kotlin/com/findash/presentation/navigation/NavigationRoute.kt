@@ -7,6 +7,8 @@ sealed class NavigationRoute(val route: String) {
     data object DashboardScreen : NavigationRoute("dashboard")
     data object TransacoesScreen : NavigationRoute("transacoes")
     data object ContasScreen : NavigationRoute("contas")
+    data object BiometriaScreen : NavigationRoute("biometria")
+    data object NotificacoesScreen : NavigationRoute("notificacoes")
     data object CategoriasScreen : NavigationRoute("categorias")
     data object CartoesCreditoScreen : NavigationRoute("cartoes_credito")
     data object ImportarCsvScreen : NavigationRoute("importar_csv")
