@@ -1,0 +1,6 @@
+# Esta é uma configuração de exemplo para desenvolvimento local
+# Renomeie para settings.local.gradle e ajuste conforme necessário
+
+android.useNewApkCreator=true
+android.enableBuildCache=true
+org.gradle.jvmargs=-Xmx4096m -XX:MaxPermSize=1024m

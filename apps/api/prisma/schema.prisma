@@ -37,16 +37,24 @@ enum TipoCategoria {
   DESPESA
 }
 
+enum TipoNotificacao {
+  FATURA_VENCENDO
+  CONTA_PAGAMENTO
+  LEMBRETE_CUSTOMIZADO
+  IMPORTACAO_CONCLUIDA
+}
+
 // ==========================================
 // MODELOS (Tabelas)
 // ==========================================
 
 model Usuario {
-  id         String   @id @default(uuid()) @db.Uuid
-  nome       String
-  email      String   @unique
-  senhaHash  String   @map("senha_hash")
-  criadoEm   DateTime @default(now()) @map("criado_em")
+  id                    String   @id @default(uuid()) @db.Uuid
+  nome                  String
+  email                 String   @unique
+  senhaHash             String   @map("senha_hash")
+  biometriaHabilitada   Boolean  @default(false) @map("biometria_habilitada")
+  criadoEm              DateTime @default(now()) @map("criado_em")
 
   // Relacionamentos
   contas        Conta[]
@@ -54,6 +62,7 @@ model Usuario {
   categorias    Categoria[]
   tags          Tag[]
   transacoes    Transacao[]
+  notificacoes  Notificacao[]
 
   @@map("usuarios") // Nome da tabela real no PostgreSQL
 }
@@ -166,4 +175,20 @@ model Tag {
   transacoes  Transacao[]
 
   @@map("tags")
+}
+
+model Notificacao {
+  id              String             @id @default(uuid()) @db.Uuid
+  usuarioId       String             @map("usuario_id") @db.Uuid
+  tipo            TipoNotificacao
+  titulo          String
+  descricao       String?            @db.Text
+  dataAgendada    DateTime           @map("data_agendada")
+  ativo           Boolean            @default(true)
+  lido            Boolean            @default(false)
+  criadoEm        DateTime           @default(now()) @map("criado_em")
+
+  usuario         Usuario            @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+
+  @@map("notificacoes")
 }

@@ -1,6 +1,6 @@
 # 💰 FinDash - Personal Finance Manager
 
-[![Flutter](https://img.shields.io/badge/Flutter-Mobile-02569B?style=flat&logo=flutter)](https://flutter.dev/)
+[![Kotlin](https://img.shields.io/badge/Kotlin-Mobile-7F52FF?style=flat&logo=kotlin)](https://kotlinlang.org/)
 [![NestJS](https://img.shields.io/badge/NestJS-Backend-E0234E?style=flat&logo=nestjs)](https://nestjs.com/)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Database-336791?style=flat&logo=postgresql)](https://www.postgresql.org/)
 [![Prisma](https://img.shields.io/badge/Prisma-ORM-2D3748?style=flat&logo=prisma)](https://www.prisma.io/)
@@ -9,7 +9,7 @@ Um aplicativo completo para gestão de finanças pessoais, desenhado para ser r�
 
 ## 🚀 O Projeto
 
-A proposta principal deste aplicativo é dar controle financeiro total ao usuário. Ele suporta desde o registro manual detalhado de transações (com calculadoras, fotos de notas fiscais e categorização) até a automação via importação de extratos bancários. Tudo gerido através de um app Flutter e um back-end NestJS em arquitetura Monorepo.
+A proposta principal deste aplicativo é dar controle financeiro total ao usuário. Ele suporta desde o registro manual detalhado de transações (com calculadoras, fotos de notas fiscais e categorização) até a automação via importação de extratos bancários. Tudo gerido através de um app Kotlin (Android) e um back-end NestJS em arquitetura Monorepo.
 
 ### ✨ Funcionalidades Principais
 
@@ -48,7 +48,7 @@ A proposta principal deste aplicativo é dar controle financeiro total ao usuár
 
 ## 🛠️ Stack Tecnológica
 
-- **Mobile App:** Flutter (Dart)
+- **Mobile App:** Kotlin com Jetpack Compose
 - **Back-end API:** NestJS (Node.js + TypeScript)
 - **Banco de Dados:** PostgreSQL
 - **ORM:** Prisma ORM

@@ -25,9 +25,9 @@ Este documento estabelece os padrões arquiteturais e de código para todo o des
 - **Migrations:** É estritamente proibido alterar a estrutura do banco de dados manualmente via SQL ou ferramentas visuais. Toda alteração de tabela/coluna deve ser feita no `schema.prisma` rodando o comando `npx prisma migrate dev`.
 - **Sem exclusão física (Soft Delete):** (Opcional, mas recomendado) Evite deletar registros financeiros. Prefira usar um campo booleano `ativo: false` ou `deletadoEm: DateTime`.
 
-## 4. Front-end (Flutter)
+## 4. Front-end (Kotlin)
 
-- **Gerenciamento de Estado:** (Definir o padrão, ex: `Bloc`, `Riverpod` ou `Provider`). Nenhuma regra de negócio deve ficar solta dentro dos Widgets.
+- **Gerenciamento de Estado:** (Definir o padrão, ex: `ViewModel`, `Jetpack Compose` ou `MVVM`). Nenhuma regra de negócio deve ficar solta dentro das Activities/Fragments.
 - **Componentização:** Se um Widget (ex: um botão personalizado ou um card de transação) for usado mais de duas vezes, ele deve ser extraído para uma pasta `core/ui/widgets`.
 - **Separação de Camadas:**
   - `data/`: Modelos, Repositórios e chamadas de API (Dio/HTTP).

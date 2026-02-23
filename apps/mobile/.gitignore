@@ -1,0 +1,34 @@
+# Android build
+.gradle
+.idea
+*.iml
+*.apk
+*.aar
+*.ap_
+*.aab
+
+# Local properties
+local.properties
+
+# Generated files
+gen/
+out/
+
+# Gradle files
+.gradle/
+build/
+
+# IDE specific files
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Kotlin/Java
+*.class
+*.jar
+*.war
+
+# Logs
+logs
+*.log

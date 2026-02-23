@@ -55,7 +55,7 @@ O FinDash é um sistema de gerenciamento financeiro pessoal focado em dar ao usu
 ## 4. Requisitos Não Funcionais (Stack e Arquitetura)
 
 - **Linguagem Ubíqua:** Todo o código (variáveis, tabelas, métodos) e documentação deverão ser escritos em **Português do Brasil (PT-BR)** para garantir proximidade com o negócio.
-- **Front-end:** Flutter (Dart) com arquitetura limpa.
+- **Front-end:** Kotlin com arquitetura limpa.
 - **Back-end:** NestJS (Node.js + TypeScript).
 - **Banco de Dados:** PostgreSQL, gerenciado via Prisma ORM.
 - **Infraestrutura:** Docker para conteinerização da API e do Banco de Dados. Repositório organizado no padrão Monorepo.

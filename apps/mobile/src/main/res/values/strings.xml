@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">FinDash</string>
+    <string name="app_description">Controle Financeiro Pessoal</string>
+
+    <!-- Splash Screen -->
+    <string name="splash_title">FinDash</string>
+    <string name="splash_subtitle">Controle Financeiro</string>
+
+    <!-- Login Screen -->
+    <string name="login_title">Fazer Login</string>
+    <string name="login_email_label">Email</string>
+    <string name="login_password_label">Senha</string>
+    <string name="login_button">Entrar</string>
+    <string name="login_register_link">Não tem conta? Registre-se</string>
+    <string name="login_error">Erro ao fazer login</string>
+
+    <!-- Register Screen -->
+    <string name="register_title">Criar Conta</string>
+    <string name="register_name_label">Nome Completo</string>
+    <string name="register_email_label">Email</string>
+    <string name="register_password_label">Senha</string>
+    <string name="register_password_confirm_label">Confirmar Senha</string>
+    <string name="register_button">Criar Conta</string>
+    <string name="register_back_login">Já tem conta? Faça login</string>
+
+    <!-- Dashboard -->
+    <string name="dashboard_welcome">Bem-vindo!</string>
+    <string name="dashboard_total_balance">Saldo Total</string>
+    <string name="dashboard_month_revenue">Receita</string>
+    <string name="dashboard_month_expenses">Despesa</string>
+    <string name="dashboard_recent_transactions">Transações Recentes</string>
+
+    <!-- Navigation -->
+    <string name="nav_dashboard">Dashboard</string>
+    <string name="nav_transactions">Transações</string>
+    <string name="nav_accounts">Contas</string>
+    <string name="nav_credit_cards">Cartões</string>
+    <string name="nav_profile">Perfil</string>
+
+    <!-- Common -->
+    <string name="button_save">Salvar</string>
+    <string name="button_cancel">Cancelar</string>
+    <string name="button_delete">Excluir</string>
+    <string name="button_edit">Editar</string>
+    <string name="button_logout">Sair</string>
+    <string name="error_generic">Ocorreu um erro. Tente novamente.</string>
+    <string name="loading">Carregando...</string>
+</resources>

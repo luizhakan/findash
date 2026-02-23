@@ -9,6 +9,9 @@ import { DashboardModule } from './dashboard/dashboard.module';
 import { FaturaModule } from './fatura/fatura.module';
 import { TagModule } from './tag/tag.module';
 import { TransacaoModule } from './transacao/transacao.module';
+import { ImportacaoModule } from './importacao/importacao.module';
+import { BiometriaModule } from './biometria/biometria.module';
+import { NotificacaoModule } from './notificacao/notificacao.module';
 
 @Module({
   imports: [
@@ -20,6 +23,9 @@ import { TransacaoModule } from './transacao/transacao.module';
     DashboardModule,
     CartaoCreditoModule,
     FaturaModule,
+    ImportacaoModule,
+    BiometriaModule,
+    NotificacaoModule,
   ],
   controllers: [AppController],
   providers: [AppService],
