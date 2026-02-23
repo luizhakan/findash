@@ -1,32 +1,60 @@
-# 💰 FinDash (Nome Provisório) - Personal Finance Manager
+# 💰 FinDash - Personal Finance Manager
 
-Um aplicativo completo para gestão de finanças pessoais, desenhado para ser rápido, seguro e flexível. O projeto permite o controle total de receitas e despesas, suportando múltiplas contas bancárias e a importação inteligente de dados via arquivos CSV de diferentes bancos (Nubank, Banco Inter e Mercado Pago), com algoritmo anti-duplicidade.
+[![Flutter](https://img.shields.io/badge/Flutter-Mobile-02569B?style=flat&logo=flutter)](https://flutter.dev/)
+[![NestJS](https://img.shields.io/badge/NestJS-Backend-E0234E?style=flat&logo=nestjs)](https://nestjs.com/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Database-336791?style=flat&logo=postgresql)](https://www.postgresql.org/)
+[![Prisma](https://img.shields.io/badge/Prisma-ORM-2D3748?style=flat&logo=prisma)](https://www.prisma.io/)
+
+Um aplicativo completo para gestão de finanças pessoais, desenhado para ser rápido, seguro e flexível. O projeto permite o controle total de receitas, despesas e cartões de crédito, suportando múltiplas contas bancárias e a importação inteligente de dados via arquivos CSV de diferentes bancos (Nubank, Banco Inter e Mercado Pago), com algoritmo anti-duplicidade.
 
 ## 🚀 O Projeto
 
-A proposta principal deste aplicativo é facilitar a vida financeira do usuário, removendo o atrito de registrar transações manualmente, mas sem perder o controle. O aplicativo é dividido em um front-end Mobile altamente responsivo e um back-end robusto e tipado, utilizando arquitetura de Monorepo.
+A proposta principal deste aplicativo é dar controle financeiro total ao usuário. Ele suporta desde o registro manual detalhado de transações (com calculadoras, fotos de notas fiscais e categorização) até a automação via importação de extratos bancários. Tudo gerido através de um app Flutter e um back-end NestJS em arquitetura Monorepo.
 
-### ✨ Funcionalidades Principais (Roadmap Inicial)
+### ✨ Funcionalidades Principais
 
-- **Gestão de Múltiplas Contas:** Crie e gerencie contas diferentes (Ex: Carteira, Nubank, Inter).
-- **Controle de Saldo Visível:** Opção de incluir ou ocultar contas específicas do cálculo do saldo total do usuário.
-- **Importação de CSVs Bancários:** Algoritmo inteligente no back-end para ler, padronizar e salvar transações vindas de extratos bancários (Nubank, Mercado Pago, Inter), garantindo que não haja dados duplicados.
-- **Gestão Manual de Lançamentos:** Adição, edição e exclusão de receitas e despesas avulsas.
-- **Dashboard Resumo:** Visão geral do saldo atualizado, receitas e despesas do período.
+#### 🏦 Gestão de Contas e Saldos
+
+- **Múltiplas Contas:** Criação de diferentes contas (Ex: Carteira, Nubank, Inter, Conta de Investimentos).
+- **Transferência entre Contas:** Movimentação de saldos entre contas cadastradas (Ex: Transferir da 'Conta Corrente' para 'Investimentos').
+- **Controle de Visibilidade:** Opção de incluir ou ocultar contas específicas do cálculo do saldo total do usuário no Dashboard.
+
+#### 💵 Receitas e Despesas (Lançamentos Manuais)
+
+- **Inserção Detalhada:** Registro com valor (via calculadora embutida), data, descrição e seleção de conta.
+- **Categorização:** Organização por categorias personalizadas.
+- **Status de Pagamento:** Marcação se a transação já foi paga/recebida ou se é um lançamento futuro.
+- **Recorrência e Parcelamento:** Suporte a transações que se repetem mensalmente ou compras/receitas parceladas.
+- **Anexos:** Inserção de notas textuais e upload de fotos de recibos/notas fiscais (armazenadas em Base64).
+
+#### 💳 Gestão de Cartões de Crédito e Faturas
+
+- **Cadastro de Cartões:** Múltiplos cartões com definição de data de fechamento e data de vencimento da fatura.
+- **Despesas no Crédito:** Lançamentos atrelados a um cartão específico, seguindo a mesma riqueza de detalhes das despesas comuns (categorias, notas).
+- **Faturas Inteligentes:** Despesas vinculadas automaticamente à fatura correta com base na data da compra e data de fechamento.
+- **Parcelamento no Cartão:** Gestão de compras divididas em várias faturas.
+- **Pagamento de Fatura:** Fluxo dedicado para o pagamento total ou parcial (com opção de parcelamento) da fatura do mês.
+
+#### 🤖 Automação e Importação
+
+- **Importação de CSVs:** Algoritmo inteligente no back-end para ler, padronizar e salvar transações vindas de extratos bancários (Nubank, Mercado Pago, Inter).
+- **Anti-Duplicidade:** Prevenção de dados duplicados ao importar o mesmo arquivo ou arquivos sobrepostos.
+
+#### 📊 Dashboard e Relatórios
+
+- **Sumário Mensal:** Visão agregada de gastos e ganhos do mês atual, separados por categorias.
+- **Sumário Diário:** Acompanhamento do fluxo de caixa dia a dia.
+- **Lançamentos Futuros:** Visualização clara das contas a pagar e a receber nos próximos meses.
 
 ## 🛠️ Stack Tecnológica
-
-O projeto adota uma stack moderna, escalável e baseada na tipagem forte (TypeScript/Dart):
 
 - **Mobile App:** Flutter (Dart)
 - **Back-end API:** NestJS (Node.js + TypeScript)
 - **Banco de Dados:** PostgreSQL
 - **ORM:** Prisma ORM
-- **Infraestrutura:** Docker (Containers para fácil deploy no VPS)
+- **Infraestrutura:** Docker (Containers para deploy no VPS)
 
 ## 📁 Estrutura do Monorepo
-
-O código-fonte está organizado em um único repositório para facilitar o desenvolvimento integrado:
 
 ```text
 /
@@ -35,14 +63,3 @@ O código-fonte está organizado em um único repositório para facilitar o dese
 │   └── api/            # Back-end NestJS (Regras de negócio e rotas)
 ├── docker-compose.yml  # Configuração de containers (Postgres, API, etc)
 └── README.md
-```
-
-## ⚙️ Como rodar o projeto localmente (Em breve)
-
-*(Esta seção será preenchida conforme configurarmos o ambiente com Docker, Prisma e Flutter).*
-
-1. Clonar o repositório.
-2. Subir o banco de dados via Docker.
-3. Rodar as migrations do Prisma.
-4. Iniciar o servidor NestJS.
-5. Rodar o app Flutter no emulador ou dispositivo físico.
