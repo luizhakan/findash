@@ -1,16 +1,12 @@
 package com.findash.data.models
 
-import kotlinx.serialization.SerialName
-import kotlinx.serialization.Serializable
-import java.time.LocalDateTime
+import com.google.gson.annotations.SerializedName
 
-@Serializable
 data class BiometriaResponse(
     val usuarioId: String,
     val biometriaHabilitada: Boolean
 )
 
-@Serializable
 data class HabilitarBiometriaRequest(
     val usuarioId: String,
     val habilitada: Boolean
@@ -23,27 +19,25 @@ enum class TipoNotificacao {
     IMPORTACAO_CONCLUIDA
 }
 
-@Serializable
 data class NotificacaoResponse(
     val id: String,
     val usuarioId: String,
     val tipo: String,
     val titulo: String,
     val descricao: String?,
-    @SerialName("dataAgendada")
+    @SerializedName("dataAgendada")
     val dataAgendada: String,
     val ativo: Boolean,
     val lido: Boolean,
-    @SerialName("criadoEm")
+    @SerializedName("criadoEm")
     val criadoEm: String
 )
 
-@Serializable
 data class CriarNotificacaoRequest(
     val usuarioId: String,
     val tipo: String,
     val titulo: String,
     val descricao: String?,
-    @SerialName("dataAgendada")
+    @SerializedName("dataAgendada")
     val dataAgendada: String
 )

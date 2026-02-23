@@ -7,6 +7,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.findash.presentation.screens.splash.SplashScreen
 import com.findash.presentation.screens.login.LoginScreen
+import com.findash.presentation.screens.register.RegisterScreen
 import com.findash.presentation.screens.dashboard.DashboardScreen
 
 @Composable
@@ -21,6 +22,10 @@ fun FinDashNavigation(navController: NavHostController = rememberNavController()
 
         composable(NavigationRoute.LoginScreen.route) {
             LoginScreen(navController = navController)
+        }
+
+        composable(NavigationRoute.RegisterScreen.route) {
+            RegisterScreen(navController = navController)
         }
 
         composable(NavigationRoute.DashboardScreen.route) {

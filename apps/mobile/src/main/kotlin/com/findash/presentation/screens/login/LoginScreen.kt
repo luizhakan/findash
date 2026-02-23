@@ -14,6 +14,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -32,6 +33,14 @@ fun LoginScreen(
     viewModel: LoginViewModel = viewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
+
+    LaunchedEffect(uiState.isLoginSuccess) {
+        if (uiState.isLoginSuccess) {
+            navController.navigate(NavigationRoute.DashboardScreen.route) {
+                popUpTo(NavigationRoute.LoginScreen.route) { inclusive = true }
+            }
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -85,14 +94,19 @@ fun LoginScreen(
             CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
         } else {
             Button(
-                onClick = {
-                    viewModel.login()
-                    // TODO: Implementar navegação após sucesso
-                },
+                onClick = { viewModel.login() },
                 modifier = Modifier.fillMaxWidth(),
                 enabled = uiState.email.isNotEmpty() && uiState.senha.isNotEmpty()
             ) {
                 Text("Entrar")
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            androidx.compose.material3.TextButton(
+                onClick = { navController.navigate(NavigationRoute.RegisterScreen.route) },
+            ) {
+                Text("Criar conta")
             }
         }
     }

@@ -7,7 +7,6 @@ import android.os.Build
 import androidx.core.app.NotificationCompat
 import androidx.work.Worker
 import androidx.work.WorkerParameters
-import com.findash.R
 
 class NotificacaoWorker(
     context: Context,
@@ -48,7 +47,7 @@ class NotificacaoWorker(
 
         // Construir notificação
         val notification = NotificationCompat.Builder(context, CHANNEL_ID)
-            .setSmallIcon(R.drawable.ic_launcher_foreground) // Substituir com ícone real
+            .setSmallIcon(android.R.drawable.ic_dialog_info)
             .setContentTitle(titulo)
             .setContentText(descricao)
             .setAutoCancel(true)
