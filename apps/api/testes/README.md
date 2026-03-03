@@ -4,7 +4,7 @@ Este diretorio contem testes da API com foco em regras de negocio e contratos de
 
 ## Objetivo
 
-- Validar cenarios de contas com dados 100% simulados.
+- Validar cenarios de contas e importacao de CSV com dados 100% simulados.
 - Permitir TDD sem dependencia de banco, fila, cache ou servicos externos.
 - Garantir que os testes cubram comportamento esperado antes da implementacao final.
 
@@ -12,13 +12,18 @@ Este diretorio contem testes da API com foco em regras de negocio e contratos de
 
 ```text
 tipos/
-└── contas/
-    └── conta.tipos.ts
+├── contas/
+│   └── conta.tipos.ts
+└── csv/
+    └── csv-bancario.tipos.ts
 
 testes/
-└── contas/
-    ├── conta.dados-simulados.ts
-    └── conta.casos-de-uso.spec.ts
+├── contas/
+│   ├── conta.dados-simulados.ts
+│   └── conta.casos-de-uso.spec.ts
+└── csv/
+    ├── csv-bancario.dados-simulados.ts
+    └── csv-bancario.casos-de-uso.spec.ts
 ```
 
 ## Convencoes
@@ -42,6 +47,24 @@ testes/
 - Alteracao de nome vazio ou abaixo do minimo (deve falhar)
 - Solicitacao de recuperacao de senha
 - Recuperacao para email inexistente com resposta generica
+
+## Escopo dos testes de CSV bancario
+
+- Nubank: importacao valida
+- Nubank: falha por coluna obrigatoria ausente
+- Nubank: falha por data invalida
+- Nubank: falha por valor invalido
+- Inter: ignora cabecalho extra
+- Inter: importacao valida com saldo por linha
+- Inter: falha por coluna obrigatoria ausente
+- Inter: falha por data invalida
+- Mercado Pago: ignora resumo inicial
+- Mercado Pago: importacao valida com identificador de referencia
+- Mercado Pago: falha por coluna obrigatoria ausente
+- Mercado Pago: falha por data invalida
+- Padronizacao para modelo canonico
+- Robustez para valor nao numerico
+- Robustez para delimitador invalido
 
 ## Recomendacoes praticas
 
