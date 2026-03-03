@@ -20,6 +20,12 @@ tipos/
 │   └── cartao.tipos.ts
 ├── carteiras/
 │   └── carteira.tipos.ts
+├── transferencias/
+│   └── transferencia-entre-carteiras.tipos.ts
+├── recorrencias/
+│   └── lancamento-recorrente.tipos.ts
+├── orcamentos/
+│   └── orcamento-categoria.tipos.ts
 ├── saldos/
 │   └── saldo-consolidado.tipos.ts
 └── csv/
@@ -35,6 +41,15 @@ testes/
 ├── carteiras/
 │   ├── carteira.dados-simulados.ts
 │   └── carteira.casos-de-uso.spec.ts
+├── transferencias/
+│   ├── transferencia-entre-carteiras.dados-simulados.ts
+│   └── transferencia-entre-carteiras.casos-de-uso.spec.ts
+├── recorrencias/
+│   ├── lancamento-recorrente.dados-simulados.ts
+│   └── lancamento-recorrente.casos-de-uso.spec.ts
+├── orcamentos/
+│   ├── orcamento-categoria.dados-simulados.ts
+│   └── orcamento-categoria.casos-de-uso.spec.ts
 ├── saldos/
 │   ├── saldo-consolidado.dados-simulados.ts
 │   └── saldo-consolidado.casos-de-uso.spec.ts
@@ -112,6 +127,43 @@ testes/
 - Juros manuais na fatura (adicionar, editar, remover)
 - Total da fatura refletindo juros manuais
 - Isolamento multiusuario em compras e faturas
+
+## Escopo dos testes de transferencias entre carteiras
+
+- Transferencia interna com debito e credito coerentes
+- Saldo consolidado do usuario permanece igual apos transferencia interna
+- Bloqueio de transferencia para carteira de outro usuario
+- Bloqueio de transferencia para mesma carteira
+- Bloqueio de transferencia com valor invalido
+- Bloqueio de transferencia envolvendo carteira arquivada
+- Listagem sem vazamento entre usuarios
+- Carga com muitos usuarios mantendo isolamento
+
+## Escopo dos testes de lancamentos recorrentes
+
+- Criacao de recorrencia de despesa e de receita
+- Bloqueio de criacao com valor invalido
+- Geracao de ocorrencias por periodo
+- Ajuste de data para meses curtos (exemplo: fevereiro)
+- Pausa e reativacao de recorrencia
+- Encerramento de recorrencia com data fim
+- Edicao aplicada apenas para proximas ocorrencias
+- Bloqueio de manipulacao de recorrencia de outro usuario
+- Listagem sem vazamento entre usuarios
+- Carga com muitos usuarios mantendo isolamento
+
+## Escopo dos testes de orcamento por categoria
+
+- Criacao de orcamento mensal por categoria
+- Bloqueio de limite invalido
+- Bloqueio de duplicidade no mesmo mes e categoria
+- Permitido mesma categoria para usuarios diferentes
+- Consumo com alertas de 80% e 100%
+- Marcacao de acima do limite
+- Estorno reduzindo consumo e recalculando alertas
+- Edicao de limite recalculando percentual consumido
+- Isolamento entre usuarios no consumo e na listagem
+- Carga com muitos usuarios mantendo isolamento
 
 ## Escopo dos testes de saldo consolidado
 
