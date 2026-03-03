@@ -21,6 +21,11 @@ export enum TipoMovimentacaoSistema {
   SAIDA = "saida",
 }
 
+export enum ModoParcelamentoSistema {
+  FIXO = "fixo",
+  DILUIDO = "diluido",
+}
+
 export enum FonteOrigemMovimentacaoSistema {
   NUBANK = "nubank",
   INTER = "inter",
@@ -75,6 +80,13 @@ export type MovimentacaoSistemaParaPersistencia = Omit<
   MovimentacaoSistema,
   "id" | "criada_em"
 >;
+
+export type ParcelaSistema = {
+  numero: number;
+  valor: number;
+  data_vencimento: string;
+  status: "aberta" | "paga";
+};
 
 export type ImportacaoCsvSistema = {
   id: string;

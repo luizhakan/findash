@@ -59,6 +59,10 @@ testes/
 - Alteracao de nome vazio ou abaixo do minimo (deve falhar)
 - Solicitacao de recuperacao de senha
 - Recuperacao para email inexistente com resposta generica
+- Adicao de despesa parcelada (fixo)
+- Adicao de receita parcelada (diluido)
+- Parcelamento de transferencia (fixo e diluido)
+- Falha por quantidade de parcelas invalida
 
 ## Escopo dos testes de CSV bancario
 

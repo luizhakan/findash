@@ -8,18 +8,26 @@ import {
   it,
   jest,
 } from "@jest/globals";
-import type { CasosDeUsoConta } from "../../tipos/contas/conta.tipos";
+import type {
+  CasosDeUsoConta,
+  CasosDeUsoContaFinanceira,
+} from "../../tipos/contas/conta.tipos";
 
-const criarCasosDeUsoContaSimulados = (): jest.Mocked<CasosDeUsoConta> => ({
+type CasosDeUsoContaComFinanceiro = CasosDeUsoConta & CasosDeUsoContaFinanceira;
+
+const criarCasosDeUsoContaSimulados = (): jest.Mocked<CasosDeUsoContaComFinanceiro> => ({
   criarConta: jest.fn(),
   deletarConta: jest.fn(),
   editarSenha: jest.fn(),
   mudarNome: jest.fn(),
   solicitarRecuperacaoSenha: jest.fn(),
+  adicionarLancamentoConta: jest.fn(),
+  editarLancamentoConta: jest.fn(),
+  parcelarLancamentoConta: jest.fn(),
 });
 
 describe("Casos de uso de conta (testes somente com dados simulados)", () => {
-  let casosDeUsoConta: jest.Mocked<CasosDeUsoConta>;
+  let casosDeUsoConta: jest.Mocked<CasosDeUsoContaComFinanceiro>;
 
   beforeEach(() => {
     casosDeUsoConta = criarCasosDeUsoContaSimulados();
@@ -187,5 +195,78 @@ describe("Casos de uso de conta (testes somente com dados simulados)", () => {
       contaDadosSimulados.entradaRecuperacaoSenhaEmailInexistente,
     );
     expect(resposta).toEqual(contaDadosSimulados.respostaRecuperacaoSenhaGenerica);
+  });
+
+  it("O usuario pode adicionar despesa parcelada em modo fixo", async () => {
+    casosDeUsoConta.adicionarLancamentoConta.mockResolvedValue(
+      contaDadosSimulados.saidaDespesaParceladaFixa,
+    );
+
+    const resposta = await casosDeUsoConta.adicionarLancamentoConta(
+      contaDadosSimulados.entradaAdicionarDespesaParceladaFixa,
+    );
+
+    expect(casosDeUsoConta.adicionarLancamentoConta).toHaveBeenCalledTimes(1);
+    expect(casosDeUsoConta.adicionarLancamentoConta).toHaveBeenCalledWith(
+      contaDadosSimulados.entradaAdicionarDespesaParceladaFixa,
+    );
+    expect(resposta.parcelas).toHaveLength(3);
+    expect(resposta.parcelas[0]?.valor).toBe(200);
+  });
+
+  it("O usuario pode adicionar receita parcelada em modo diluido", async () => {
+    casosDeUsoConta.adicionarLancamentoConta.mockResolvedValue(
+      contaDadosSimulados.saidaReceitaParceladaDiluida,
+    );
+
+    const resposta = await casosDeUsoConta.adicionarLancamentoConta(
+      contaDadosSimulados.entradaAdicionarReceitaParceladaDiluida,
+    );
+
+    expect(resposta.parcelas).toHaveLength(3);
+    expect(resposta.parcelas[0]?.valor).toBe(333.33);
+    expect(resposta.parcelas[2]?.valor).toBe(333.34);
+  });
+
+  it("O usuario pode parcelar transferencia em modo fixo", async () => {
+    casosDeUsoConta.parcelarLancamentoConta.mockResolvedValue(
+      contaDadosSimulados.saidaTransferenciaParceladaFixa,
+    );
+
+    const resposta = await casosDeUsoConta.parcelarLancamentoConta(
+      contaDadosSimulados.entradaParcelarTransferenciaFixa,
+    );
+
+    expect(casosDeUsoConta.parcelarLancamentoConta).toHaveBeenCalledTimes(1);
+    expect(casosDeUsoConta.parcelarLancamentoConta).toHaveBeenCalledWith(
+      contaDadosSimulados.entradaParcelarTransferenciaFixa,
+    );
+    expect(resposta.parcelas.map((parcela) => parcela.valor)).toEqual([300, 300, 300]);
+  });
+
+  it("O usuario pode parcelar transferencia em modo diluido", async () => {
+    casosDeUsoConta.parcelarLancamentoConta.mockResolvedValue(
+      contaDadosSimulados.saidaTransferenciaParceladaDiluida,
+    );
+
+    const resposta = await casosDeUsoConta.parcelarLancamentoConta(
+      contaDadosSimulados.entradaParcelarTransferenciaDiluida,
+    );
+
+    expect(resposta.parcelas).toHaveLength(3);
+    expect(resposta.parcelas[0]?.valor).toBe(333.33);
+    expect(resposta.parcelas[2]?.valor).toBe(333.34);
+  });
+
+  it("O usuario nao pode parcelar com quantidade de parcelas invalida", async () => {
+    casosDeUsoConta.parcelarLancamentoConta.mockRejectedValue(
+      new Error(contaDadosSimulados.erros.quantidadeParcelasInvalida),
+    );
+
+    await expect(
+      casosDeUsoConta.parcelarLancamentoConta(
+        contaDadosSimulados.entradaParcelarComQuantidadeInvalida,
+      ),
+    ).rejects.toThrow(contaDadosSimulados.erros.quantidadeParcelasInvalida);
   });
 });
