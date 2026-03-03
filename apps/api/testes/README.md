@@ -18,6 +18,8 @@ tipos/
 │   └── conta.tipos.ts
 ├── carteiras/
 │   └── carteira.tipos.ts
+├── saldos/
+│   └── saldo-consolidado.tipos.ts
 └── csv/
     └── csv-bancario.tipos.ts
 
@@ -28,6 +30,9 @@ testes/
 ├── carteiras/
 │   ├── carteira.dados-simulados.ts
 │   └── carteira.casos-de-uso.spec.ts
+├── saldos/
+│   ├── saldo-consolidado.dados-simulados.ts
+│   └── saldo-consolidado.casos-de-uso.spec.ts
 └── csv/
     ├── csv-bancario.dados-simulados.ts
     └── csv-bancario.casos-de-uso.spec.ts
@@ -85,6 +90,20 @@ testes/
 - Paginacao e ordenacao sem vazamento de dados
 - Concorrencia em criacao de carteira e atualizacao de saldo
 - Carga com muitos usuarios mantendo isolamento e tempo aceitavel
+- Importacao de multiplos CSVs na propria carteira
+- Bloqueio de importacao de CSV em carteira de outro usuario
+
+## Escopo dos testes de saldo consolidado
+
+- Soma de todas as carteiras visiveis por padrao
+- Ocultar e reexibir carteiras no consolidado
+- Saldo zero quando nenhuma carteira esta visivel
+- Exclusao de carteiras arquivadas/inativas conforme regra
+- Persistencia da visibilidade por usuario
+- Nova carteira entra visivel por padrao
+- Recalculo apos movimentacoes
+- Isolamento entre usuarios no consolidado
+- Carga multiusuario com tempo aceitavel
 
 ## Recomendacoes praticas
 

@@ -360,4 +360,37 @@ describe("Casos de uso de carteiras (testes somente com dados simulados)", () =>
     expect(new Set(resultado.usuario_ids_sem_vazamento).size).toBe(120);
     expect(resultado.tempo_processamento_ms).toBeLessThanOrEqual(1000);
   });
+
+  it("26) Usuario pode importar varios CSVs na propria conta", async () => {
+    casosDeUsoCarteiras.importarCsvNaCarteira
+      .mockResolvedValueOnce(carteiraDadosSimulados.resultados.resultadoImportacaoCsvUsuarioUm)
+      .mockResolvedValueOnce(
+        carteiraDadosSimulados.resultados.resultadoImportacaoCsvUsuarioUmSegundaExecucao,
+      );
+
+    const primeiro = await casosDeUsoCarteiras.importarCsvNaCarteira(
+      carteiraDadosSimulados.entradas.importacaoCsvUsuarioUm,
+    );
+    const segundo = await casosDeUsoCarteiras.importarCsvNaCarteira({
+      ...carteiraDadosSimulados.entradas.importacaoCsvUsuarioUm,
+      conteudoCsv: `Data,Valor,Identificador,Descricao
+12/01/2026,80.00,id_origem_csv_003,Recebimento extra`,
+    });
+
+    expect(primeiro.movimentacoes_criadas).toBe(2);
+    expect(segundo.movimentacoes_criadas).toBe(1);
+    expect(segundo.ids_origem_criados).toContain("id_origem_csv_003");
+  });
+
+  it("27) Usuario nao pode importar CSV para carteira de outro usuario", async () => {
+    casosDeUsoCarteiras.importarCsvNaCarteira.mockRejectedValue(
+      new Error(carteiraDadosSimulados.erros.importacaoCsvCarteiraOutroUsuario),
+    );
+
+    await expect(
+      casosDeUsoCarteiras.importarCsvNaCarteira(
+        carteiraDadosSimulados.entradas.importacaoCsvOutroUsuarioIndevida,
+      ),
+    ).rejects.toThrow(carteiraDadosSimulados.erros.importacaoCsvCarteiraOutroUsuario);
+  });
 });

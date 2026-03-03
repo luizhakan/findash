@@ -10,6 +10,8 @@ Este documento define regras minimas para garantir isolamento de dados em cenari
 - Operacoes de edicao/remocao devem validar dono da carteira antes de executar.
 - Transferencias so sao permitidas entre carteiras do mesmo `usuario_id`.
 - Importacao de CSV deve registrar `usuario_id` e `carteira_id` em cada movimentacao.
+- Usuario pode importar varios CSVs, desde que a importacao seja para carteiras do proprio `usuario_id`.
+- Importacao para carteira de outro usuario deve ser bloqueada.
 - Deduplicacao deve considerar contexto do usuario e da carteira.
 
 ## Deduplicacao recomendada

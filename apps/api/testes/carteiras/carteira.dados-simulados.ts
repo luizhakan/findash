@@ -238,6 +238,13 @@ export const carteiraDadosSimulados = {
       conteudoCsv: `Data,Valor,Identificador,Descricao
 10/01/2026,-50.00,id_origem_csv_001,Pagamento`,
     },
+    importacaoCsvOutroUsuarioIndevida: {
+      fonte: "nubank" as const,
+      usuario_id: usuarioUmId,
+      carteira_id: carteiraUsuarioDoisPrincipalId,
+      conteudoCsv: `Data,Valor,Identificador,Descricao
+12/01/2026,80.00,id_origem_csv_003,Tentativa indevida`,
+    },
     listagemPaginadaUsuarioUm: {
       usuario_id: usuarioUmId,
       incluir_arquivadas: false,
@@ -387,6 +394,12 @@ export const carteiraDadosSimulados = {
       ids_origem_criados: ["id_origem_csv_001", "id_origem_csv_002"],
       ids_origem_ignorados: [],
     },
+    resultadoImportacaoCsvUsuarioUmSegundaExecucao: {
+      movimentacoes_criadas: 1,
+      movimentacoes_ignoradas_duplicadas: 0,
+      ids_origem_criados: ["id_origem_csv_003"],
+      ids_origem_ignorados: [],
+    },
     resultadoImportacaoCsvDuplicadaMesmoUsuario: {
       movimentacoes_criadas: 0,
       movimentacoes_ignoradas_duplicadas: 1,
@@ -474,6 +487,8 @@ export const carteiraDadosSimulados = {
     nomeVazio: "Nome da carteira nao pode ser vazio.",
     carteiraDuplicada: "Carteira duplicada para o mesmo usuario.",
     acessoNegado: "Acesso negado para esta carteira.",
+    importacaoCsvCarteiraOutroUsuario:
+      "Usuario nao pode importar CSV para carteira de outro usuario.",
     carteiraComMovimentacoesAtivas:
       "Nao e permitido remover carteira com movimentacoes ativas.",
     carteiraArquivada: "Carteira arquivada nao aceita movimentacao.",
