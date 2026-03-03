@@ -12,8 +12,12 @@ Este diretorio contem testes da API com foco em regras de negocio e contratos de
 
 ```text
 tipos/
+├── sistema/
+│   └── financeiro.tipos.ts
 ├── contas/
 │   └── conta.tipos.ts
+├── carteiras/
+│   └── carteira.tipos.ts
 └── csv/
     └── csv-bancario.tipos.ts
 
@@ -21,6 +25,9 @@ testes/
 ├── contas/
 │   ├── conta.dados-simulados.ts
 │   └── conta.casos-de-uso.spec.ts
+├── carteiras/
+│   ├── carteira.dados-simulados.ts
+│   └── carteira.casos-de-uso.spec.ts
 └── csv/
     ├── csv-bancario.dados-simulados.ts
     └── csv-bancario.casos-de-uso.spec.ts
@@ -65,6 +72,19 @@ testes/
 - Padronizacao para modelo canonico
 - Robustez para valor nao numerico
 - Robustez para delimitador invalido
+
+## Escopo dos testes de carteiras
+
+- Criacao, listagem, busca, edicao e remocao com isolamento por usuario
+- Bloqueio de acesso entre usuarios
+- Arquivamento de carteira com preservacao de historico
+- Atualizacao de saldo com entrada e saida
+- Transferencia entre carteiras do mesmo usuario
+- Bloqueio de transferencia entre usuarios diferentes
+- Importacao de CSV com deduplicacao e isolamento por usuario/carteira
+- Paginacao e ordenacao sem vazamento de dados
+- Concorrencia em criacao de carteira e atualizacao de saldo
+- Carga com muitos usuarios mantendo isolamento e tempo aceitavel
 
 ## Recomendacoes praticas
 

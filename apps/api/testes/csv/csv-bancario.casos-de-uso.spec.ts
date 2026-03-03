@@ -95,8 +95,8 @@ describe("Casos de uso de dados por CSV bancario (testes somente com dados simul
       csvBancarioDadosSimulados.entradaInterValidaComCabecalhoExtra,
     );
 
-    expect(resultado.linhas[0]?.saldo_pos_movimento).toBeDefined();
-    expect(resultado.linhas[1]?.saldo_pos_movimento).toBeDefined();
+    expect(resultado.linhas[0]?.saldo_pos_movimento_origem).toBeDefined();
+    expect(resultado.linhas[1]?.saldo_pos_movimento_origem).toBeDefined();
   });
 
   it("Inter: falha quando falta coluna obrigatoria", async () => {
@@ -147,8 +147,8 @@ describe("Casos de uso de dados por CSV bancario (testes somente com dados simul
       csvBancarioDadosSimulados.entradaMercadoPagoValidaComResumoInicial,
     );
 
-    expect(resultado.linhas[0]?.id_referencia_origem).toBe("900001");
-    expect(resultado.linhas[1]?.id_referencia_origem).toBe("900002");
+    expect(resultado.linhas[0]?.id_origem).toBe("900001");
+    expect(resultado.linhas[1]?.id_origem).toBe("900002");
   });
 
   it("Mercado Pago: falha quando falta coluna obrigatoria", async () => {
@@ -185,11 +185,15 @@ describe("Casos de uso de dados por CSV bancario (testes somente com dados simul
     );
 
     expect(resultado.linhas[0]).toMatchObject({
+      usuario_id: "usuario_csv_001",
+      carteira_id: "carteira_csv_inter_001",
       data_movimentacao: "2026-02-01",
       descricao: "Padaria Bom Dia",
-      tipo_movimentacao: "Pix enviado",
+      modo: "pix",
+      tipo: "saida",
       valor: -25.9,
-      saldo_pos_movimento: 974.1,
+      saldo_pos_movimento_origem: 974.1,
+      fonte_origem: "inter",
     });
   });
 

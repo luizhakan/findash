@@ -1,18 +1,15 @@
+import type { MovimentacaoSistemaParaPersistencia } from "../sistema/financeiro.tipos";
+
 export type FonteCsvBancario = "nubank" | "inter" | "mercado_pago";
 
 export type EntradaAdicionarDadosCsv = {
   fonte: FonteCsvBancario;
+  usuario_id: string;
+  carteira_id: string;
   conteudoCsv: string;
 };
 
-export type LinhaCanonicaMovimentacao = {
-  data_movimentacao: string;
-  descricao: string;
-  tipo_movimentacao: string;
-  valor: number;
-  saldo_pos_movimento?: number;
-  id_referencia_origem?: string;
-};
+export type LinhaCanonicaMovimentacao = MovimentacaoSistemaParaPersistencia;
 
 export type ResultadoAdicionarDadosCsv = {
   linhas: LinhaCanonicaMovimentacao[];
