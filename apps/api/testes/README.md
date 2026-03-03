@@ -16,6 +16,8 @@ tipos/
 │   └── financeiro.tipos.ts
 ├── contas/
 │   └── conta.tipos.ts
+├── cartoes/
+│   └── cartao.tipos.ts
 ├── carteiras/
 │   └── carteira.tipos.ts
 ├── saldos/
@@ -27,6 +29,9 @@ testes/
 ├── contas/
 │   ├── conta.dados-simulados.ts
 │   └── conta.casos-de-uso.spec.ts
+├── cartoes/
+│   ├── cartao.dados-simulados.ts
+│   └── cartao.casos-de-uso.spec.ts
 ├── carteiras/
 │   ├── carteira.dados-simulados.ts
 │   └── carteira.casos-de-uso.spec.ts
@@ -96,6 +101,17 @@ testes/
 - Carga com muitos usuarios mantendo isolamento e tempo aceitavel
 - Importacao de multiplos CSVs na propria carteira
 - Bloqueio de importacao de CSV em carteira de outro usuario
+
+## Escopo dos testes de cartoes
+
+- Criacao de cartao com fechamento e vencimento obrigatorios
+- Compra com fatura atual como padrao
+- Compra com alocacao manual para fatura futura
+- Edicao de compra com mudanca de fatura
+- Fatura acima do limite permitida
+- Juros manuais na fatura (adicionar, editar, remover)
+- Total da fatura refletindo juros manuais
+- Isolamento multiusuario em compras e faturas
 
 ## Escopo dos testes de saldo consolidado
 
