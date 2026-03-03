@@ -1,0 +1,429 @@
+generator cliente {
+  provider = "prisma-client-js"
+}
+
+datasource banco {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum StatusUsuario {
+  ATIVO
+  INATIVO
+}
+
+enum TipoCarteira {
+  CONTA_CORRENTE
+  CONTA_PAGAMENTO
+  CARTEIRA_DIGITAL
+  CARTAO_CREDITO
+  DINHEIRO
+}
+
+enum ModoMovimentacao {
+  CARTAO_CREDITO
+  CARTAO_DEBITO
+  PIX
+  TRANSFERENCIA
+  BOLETO
+  DINHEIRO
+  AJUSTE
+}
+
+enum TipoMovimentacao {
+  ENTRADA
+  SAIDA
+}
+
+enum ModoParcelamento {
+  FIXO
+  DILUIDO
+}
+
+enum FonteOrigemMovimentacao {
+  NUBANK
+  INTER
+  MERCADO_PAGO
+  MANUAL
+}
+
+enum StatusImportacaoCsv {
+  PENDENTE
+  PROCESSANDO
+  CONCLUIDA
+  CONCLUIDA_COM_ERROS
+  FALHA
+}
+
+enum StatusItemImportacaoCsv {
+  PROCESSADO
+  IGNORADO_DUPLICADO
+  ERRO
+}
+
+enum BandeiraCartao {
+  VISA
+  MASTERCARD
+  ELO
+  AMEX
+  HIPERCARD
+  OUTRA
+}
+
+enum StatusParcela {
+  ABERTA
+  PAGA
+}
+
+enum PeriodicidadeRecorrencia {
+  MENSAL
+  SEMANAL
+}
+
+enum StatusOcorrenciaRecorrencia {
+  PENDENTE
+  LANCADA
+  CANCELADA
+}
+
+enum CategoriaOrcamento {
+  ALIMENTACAO
+  MORADIA
+  TRANSPORTE
+  SAUDE
+  LAZER
+  EDUCACAO
+  OUTROS
+}
+
+enum TipoRegistroOrcamento {
+  CONSUMO
+  ESTORNO
+}
+
+model Usuario {
+  id                  String                        @id @default(cuid())
+  nome                String
+  usuario             String                        @unique
+  email               String                        @unique
+  senha_hash          String
+  status              StatusUsuario                 @default(ATIVO)
+  criado_em           DateTime                      @default(now())
+  atualizado_em       DateTime                      @updatedAt
+  removido_em         DateTime?
+  carteiras           Carteira[]
+  cartoes             Cartao[]
+  movimentacoes       Movimentacao[]
+  importacoes_csv     ImportacaoCsv[]
+  itens_importacao    ItemImportacaoCsv[]
+  transferencias      TransferenciaInterna[]
+  recorrencias        LancamentoRecorrente[]
+  ocorrencias         OcorrenciaLancamentoRecorrente[]
+  orcamentos          OrcamentoCategoria[]
+  registros_orcamento RegistroOrcamento[]
+  visibilidades       VisibilidadeCarteiraConsolidado[]
+  tokens_recuperacao  TokenRecuperacaoSenha[]
+
+  @@map("usuarios")
+}
+
+model TokenRecuperacaoSenha {
+  id                String   @id @default(cuid())
+  usuario_id        String
+  token_hash        String   @unique
+  expiracao_em      DateTime
+  utilizado_em      DateTime?
+  criado_em         DateTime @default(now())
+  usuario_rel       Usuario  @relation(fields: [usuario_id], references: [id], onDelete: Cascade)
+
+  @@index([usuario_id])
+  @@map("tokens_recuperacao_senha")
+}
+
+model Carteira {
+  id                        String                                @id @default(cuid())
+  usuario_id                String
+  nome                      String
+  tipo_carteira             TipoCarteira
+  moeda                     String                                @default("BRL")
+  saldo_inicial             Decimal                               @db.Decimal(18, 2)
+  saldo_atual               Decimal                               @db.Decimal(18, 2)
+  ativa                     Boolean                               @default(true)
+  arquivada                 Boolean                               @default(false)
+  criada_em                 DateTime                              @default(now())
+  atualizada_em             DateTime                              @updatedAt
+  usuario_rel               Usuario                               @relation(fields: [usuario_id], references: [id], onDelete: Cascade)
+  movimentacoes             Movimentacao[]
+  importacoes_csv           ImportacaoCsv[]
+  transferencias_origem     TransferenciaInterna[]                @relation("transferencias_origem")
+  transferencias_destino    TransferenciaInterna[]                @relation("transferencias_destino")
+  recorrencias              LancamentoRecorrente[]
+  visibilidades_consolidado VisibilidadeCarteiraConsolidado[]
+
+  @@unique([usuario_id, nome], map: "uk_carteira_usuario_nome")
+  @@index([usuario_id])
+  @@index([usuario_id, ativa, arquivada])
+  @@map("carteiras")
+}
+
+model Movimentacao {
+  id                                String                 @id @default(cuid())
+  usuario_id                        String
+  carteira_id                       String
+  modo                              ModoMovimentacao
+  tipo                              TipoMovimentacao
+  valor                             Decimal                @db.Decimal(18, 2)
+  descricao                         String
+  data_movimentacao                 DateTime
+  saldo_pos_movimento_origem        Decimal?               @db.Decimal(18, 2)
+  id_origem                         String?
+  fonte_origem                      FonteOrigemMovimentacao
+  parcelamento_modo                 ModoParcelamento?
+  parcelamento_quantidade           Int?
+  parcelamento_valor_parcela_fixa   Decimal?               @db.Decimal(18, 2)
+  criado_em                         DateTime               @default(now())
+  usuario_rel                       Usuario                @relation(fields: [usuario_id], references: [id], onDelete: Cascade)
+  carteira_rel                      Carteira               @relation(fields: [carteira_id], references: [id], onDelete: Cascade)
+  transferencia_debito_rel          TransferenciaInterna?  @relation("movimentacao_debito")
+  transferencia_credito_rel         TransferenciaInterna?  @relation("movimentacao_credito")
+  itens_importacao                  ItemImportacaoCsv[]
+
+  @@index([usuario_id])
+  @@index([usuario_id, carteira_id])
+  @@index([usuario_id, data_movimentacao])
+  @@index([usuario_id, carteira_id, fonte_origem, id_origem])
+  @@map("movimentacoes")
+}
+
+model TransferenciaInterna {
+  id                    String       @id @default(cuid())
+  usuario_id            String
+  carteira_origem_id    String
+  carteira_destino_id   String
+  valor                 Decimal      @db.Decimal(18, 2)
+  descricao             String
+  data_movimentacao     DateTime
+  movimentacao_debito_id String      @unique
+  movimentacao_credito_id String     @unique
+  criada_em             DateTime     @default(now())
+  usuario_rel           Usuario      @relation(fields: [usuario_id], references: [id], onDelete: Cascade)
+  carteira_origem_rel   Carteira     @relation("transferencias_origem", fields: [carteira_origem_id], references: [id], onDelete: Cascade)
+  carteira_destino_rel  Carteira     @relation("transferencias_destino", fields: [carteira_destino_id], references: [id], onDelete: Cascade)
+  movimentacao_debito_rel Movimentacao @relation("movimentacao_debito", fields: [movimentacao_debito_id], references: [id], onDelete: Restrict)
+  movimentacao_credito_rel Movimentacao @relation("movimentacao_credito", fields: [movimentacao_credito_id], references: [id], onDelete: Restrict)
+
+  @@index([usuario_id])
+  @@index([usuario_id, data_movimentacao])
+  @@map("transferencias_internas")
+}
+
+model ImportacaoCsv {
+  id                String                 @id @default(cuid())
+  usuario_id        String
+  carteira_id       String
+  fonte_origem      FonteOrigemMovimentacao
+  hash_arquivo      String
+  status            StatusImportacaoCsv    @default(PENDENTE)
+  criado_em         DateTime               @default(now())
+  finalizado_em     DateTime?
+  usuario_rel       Usuario                @relation(fields: [usuario_id], references: [id], onDelete: Cascade)
+  carteira_rel      Carteira               @relation(fields: [carteira_id], references: [id], onDelete: Cascade)
+  itens             ItemImportacaoCsv[]
+
+  @@unique([usuario_id, carteira_id, hash_arquivo], map: "uk_importacao_hash_usuario_carteira")
+  @@index([usuario_id, carteira_id])
+  @@map("importacoes_csv")
+}
+
+model ItemImportacaoCsv {
+  id                    String                   @id @default(cuid())
+  importacao_id         String
+  usuario_id            String
+  carteira_id           String
+  movimentacao_id       String?
+  fonte_origem          FonteOrigemMovimentacao
+  chave_deduplicacao    String
+  id_origem             String?
+  status                StatusItemImportacaoCsv
+  motivo_erro           String?
+  linha_original        String?
+  criado_em             DateTime                 @default(now())
+  importacao_rel        ImportacaoCsv            @relation(fields: [importacao_id], references: [id], onDelete: Cascade)
+  usuario_rel           Usuario                  @relation(fields: [usuario_id], references: [id], onDelete: Cascade)
+  carteira_rel          Carteira                 @relation(fields: [carteira_id], references: [id], onDelete: Cascade)
+  movimentacao_rel      Movimentacao?            @relation(fields: [movimentacao_id], references: [id], onDelete: SetNull)
+
+  @@unique([usuario_id, carteira_id, fonte_origem, chave_deduplicacao], map: "uk_deduplicacao_item_importacao")
+  @@index([importacao_id])
+  @@index([usuario_id, carteira_id])
+  @@map("itens_importacao_csv")
+}
+
+model Cartao {
+  id                String        @id @default(cuid())
+  usuario_id        String
+  nome              String
+  bandeira          BandeiraCartao
+  limite_total      Decimal       @db.Decimal(18, 2)
+  dia_fechamento    Int
+  dia_vencimento    Int
+  ativo             Boolean       @default(true)
+  criado_em         DateTime      @default(now())
+  atualizado_em     DateTime      @updatedAt
+  usuario_rel       Usuario       @relation(fields: [usuario_id], references: [id], onDelete: Cascade)
+  faturas           FaturaCartao[]
+  compras           CompraCartao[]
+
+  @@index([usuario_id])
+  @@unique([usuario_id, nome], map: "uk_cartao_usuario_nome")
+  @@map("cartoes")
+}
+
+model FaturaCartao {
+  id                String          @id @default(cuid())
+  usuario_id        String
+  cartao_id         String
+  referencia        String
+  data_fechamento   DateTime
+  data_vencimento   DateTime
+  valor_compras     Decimal         @default(0) @db.Decimal(18, 2)
+  valor_juros_manual Decimal        @default(0) @db.Decimal(18, 2)
+  valor_total       Decimal         @default(0) @db.Decimal(18, 2)
+  criado_em         DateTime        @default(now())
+  atualizado_em     DateTime        @updatedAt
+  usuario_rel       Usuario         @relation(fields: [usuario_id], references: [id], onDelete: Cascade)
+  cartao_rel        Cartao          @relation(fields: [cartao_id], references: [id], onDelete: Cascade)
+  compras           CompraCartao[]
+
+  @@unique([cartao_id, referencia], map: "uk_fatura_cartao_referencia")
+  @@index([usuario_id, cartao_id])
+  @@map("faturas_cartao")
+}
+
+model CompraCartao {
+  id                  String               @id @default(cuid())
+  usuario_id          String
+  cartao_id           String
+  fatura_destino_id   String
+  descricao           String
+  valor_total         Decimal              @db.Decimal(18, 2)
+  data_compra         DateTime
+  criado_em           DateTime             @default(now())
+  atualizado_em       DateTime             @updatedAt
+  usuario_rel         Usuario              @relation(fields: [usuario_id], references: [id], onDelete: Cascade)
+  cartao_rel          Cartao               @relation(fields: [cartao_id], references: [id], onDelete: Cascade)
+  fatura_destino_rel  FaturaCartao         @relation(fields: [fatura_destino_id], references: [id], onDelete: Cascade)
+  parcelas            ParcelaCompraCartao[]
+
+  @@index([usuario_id, cartao_id])
+  @@index([fatura_destino_id])
+  @@map("compras_cartao")
+}
+
+model ParcelaCompraCartao {
+  id             String        @id @default(cuid())
+  compra_id      String
+  numero         Int
+  valor          Decimal       @db.Decimal(18, 2)
+  data_vencimento DateTime
+  status         StatusParcela @default(ABERTA)
+  criado_em      DateTime      @default(now())
+  compra_rel     CompraCartao  @relation(fields: [compra_id], references: [id], onDelete: Cascade)
+
+  @@unique([compra_id, numero], map: "uk_parcela_compra_numero")
+  @@index([data_vencimento])
+  @@map("parcelas_compra_cartao")
+}
+
+model LancamentoRecorrente {
+  id                String                         @id @default(cuid())
+  usuario_id        String
+  carteira_id       String
+  descricao         String
+  modo              ModoMovimentacao
+  tipo              TipoMovimentacao
+  valor             Decimal                        @db.Decimal(18, 2)
+  periodicidade     PeriodicidadeRecorrencia
+  dia_execucao      Int
+  data_inicio       DateTime
+  data_fim          DateTime?
+  ativo             Boolean                        @default(true)
+  pausado           Boolean                        @default(false)
+  criado_em         DateTime                       @default(now())
+  atualizado_em     DateTime                       @updatedAt
+  usuario_rel       Usuario                        @relation(fields: [usuario_id], references: [id], onDelete: Cascade)
+  carteira_rel      Carteira                       @relation(fields: [carteira_id], references: [id], onDelete: Cascade)
+  ocorrencias       OcorrenciaLancamentoRecorrente[]
+
+  @@index([usuario_id])
+  @@index([usuario_id, ativo, pausado])
+  @@map("lancamentos_recorrentes")
+}
+
+model OcorrenciaLancamentoRecorrente {
+  id                String                      @id @default(cuid())
+  recorrencia_id    String
+  usuario_id        String
+  competencia       String
+  data_prevista     DateTime
+  valor             Decimal                     @db.Decimal(18, 2)
+  status            StatusOcorrenciaRecorrencia @default(PENDENTE)
+  criado_em         DateTime                    @default(now())
+  recorrencia_rel   LancamentoRecorrente        @relation(fields: [recorrencia_id], references: [id], onDelete: Cascade)
+  usuario_rel       Usuario                     @relation(fields: [usuario_id], references: [id], onDelete: Cascade)
+
+  @@unique([recorrencia_id, competencia], map: "uk_ocorrencia_recorrencia_competencia")
+  @@index([usuario_id, competencia])
+  @@map("ocorrencias_lancamento_recorrente")
+}
+
+model OrcamentoCategoria {
+  id                    String              @id @default(cuid())
+  usuario_id            String
+  categoria             CategoriaOrcamento
+  competencia           String
+  moeda                 String              @default("BRL")
+  limite_mensal         Decimal             @db.Decimal(18, 2)
+  valor_consumido       Decimal             @default(0) @db.Decimal(18, 2)
+  percentual_consumido  Decimal             @default(0) @db.Decimal(8, 2)
+  alertas_ativos        Json
+  ativo                 Boolean             @default(true)
+  criado_em             DateTime            @default(now())
+  atualizado_em         DateTime            @updatedAt
+  usuario_rel           Usuario             @relation(fields: [usuario_id], references: [id], onDelete: Cascade)
+  registros             RegistroOrcamento[]
+
+  @@unique([usuario_id, categoria, competencia], map: "uk_orcamento_categoria_competencia")
+  @@index([usuario_id, competencia])
+  @@map("orcamentos_categoria")
+}
+
+model RegistroOrcamento {
+  id                  String               @id @default(cuid())
+  orcamento_id        String
+  usuario_id          String
+  id_movimentacao     String
+  tipo_registro       TipoRegistroOrcamento
+  valor               Decimal              @db.Decimal(18, 2)
+  criado_em           DateTime             @default(now())
+  orcamento_rel       OrcamentoCategoria   @relation(fields: [orcamento_id], references: [id], onDelete: Cascade)
+  usuario_rel         Usuario              @relation(fields: [usuario_id], references: [id], onDelete: Cascade)
+
+  @@unique([orcamento_id, id_movimentacao, tipo_registro], map: "uk_registro_orcamento_movimento_tipo")
+  @@index([usuario_id])
+  @@map("registros_orcamento")
+}
+
+model VisibilidadeCarteiraConsolidado {
+  id             String    @id @default(cuid())
+  usuario_id     String
+  carteira_id    String
+  visivel        Boolean   @default(true)
+  atualizado_em  DateTime  @updatedAt
+  usuario_rel    Usuario   @relation(fields: [usuario_id], references: [id], onDelete: Cascade)
+  carteira_rel   Carteira  @relation(fields: [carteira_id], references: [id], onDelete: Cascade)
+
+  @@unique([usuario_id, carteira_id], map: "uk_visibilidade_usuario_carteira")
+  @@index([usuario_id, visivel])
+  @@map("visibilidades_carteira_consolidado")
+}
