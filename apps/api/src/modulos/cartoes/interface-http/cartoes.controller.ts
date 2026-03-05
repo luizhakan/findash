@@ -8,6 +8,7 @@ import {
   Post,
   Query,
 } from "@nestjs/common";
+import { UsuarioAtualId } from "../../../infraestrutura/http/usuario-atual-id.decorator";
 import { CartoesService } from "../aplicacao/cartoes.service";
 
 @Controller("cartoes")
@@ -15,61 +16,76 @@ export class CartoesController {
   constructor(private readonly cartoesService: CartoesService) {}
 
   @Post()
-  async criarCartao(@Body() corpo: Record<string, unknown>): Promise<Record<string, unknown>> {
-    return this.cartoesService.criarCartao(corpo);
+  async criarCartao(
+    @Body() corpo: Record<string, unknown>,
+    @UsuarioAtualId() usuarioAutenticadoId: string,
+  ): Promise<Record<string, unknown>> {
+    return this.cartoesService.criarCartao(corpo, usuarioAutenticadoId);
   }
 
   @Patch(":cartaoId")
   async editarCartao(
     @Param("cartaoId") cartaoId: string,
     @Body() corpo: Record<string, unknown>,
+    @UsuarioAtualId() usuarioAutenticadoId: string,
   ): Promise<Record<string, unknown>> {
-    return this.cartoesService.editarCartao(cartaoId, corpo);
+    return this.cartoesService.editarCartao(cartaoId, corpo, usuarioAutenticadoId);
   }
 
   @Post("compras")
   async registrarCompraCartao(
     @Body() corpo: Record<string, unknown>,
+    @UsuarioAtualId() usuarioAutenticadoId: string,
   ): Promise<Record<string, unknown>> {
-    return this.cartoesService.registrarCompraCartao(corpo);
+    return this.cartoesService.registrarCompraCartao(corpo, usuarioAutenticadoId);
   }
 
   @Patch("compras/:compraId")
   async editarCompraCartao(
     @Param("compraId") compraId: string,
     @Body() corpo: Record<string, unknown>,
+    @UsuarioAtualId() usuarioAutenticadoId: string,
   ): Promise<Record<string, unknown>> {
-    return this.cartoesService.editarCompraCartao(compraId, corpo);
+    return this.cartoesService.editarCompraCartao(compraId, corpo, usuarioAutenticadoId);
   }
 
   @Post("faturas/juros")
   async adicionarJurosManualFatura(
     @Body() corpo: Record<string, unknown>,
+    @UsuarioAtualId() usuarioAutenticadoId: string,
   ): Promise<Record<string, unknown>> {
-    return this.cartoesService.adicionarJurosManualFatura(corpo);
+    return this.cartoesService.adicionarJurosManualFatura(corpo, usuarioAutenticadoId);
   }
 
   @Patch("faturas/juros")
   async editarJurosManualFatura(
     @Body() corpo: Record<string, unknown>,
+    @UsuarioAtualId() usuarioAutenticadoId: string,
   ): Promise<Record<string, unknown>> {
-    return this.cartoesService.editarJurosManualFatura(corpo);
+    return this.cartoesService.editarJurosManualFatura(corpo, usuarioAutenticadoId);
   }
 
   @Delete("faturas/:faturaId/juros")
   async removerJurosManualFatura(
     @Param("faturaId") faturaId: string,
+    @UsuarioAtualId() usuarioAutenticadoId: string,
   ): Promise<Record<string, unknown>> {
-    return this.cartoesService.removerJurosManualFatura(faturaId);
+    return this.cartoesService.removerJurosManualFatura(faturaId, usuarioAutenticadoId);
   }
 
   @Get()
-  async listarCartoes(@Query() query: Record<string, unknown>): Promise<Record<string, unknown>> {
-    return this.cartoesService.listarCartoes(query);
+  async listarCartoes(
+    @Query() query: Record<string, unknown>,
+    @UsuarioAtualId() usuarioAutenticadoId: string,
+  ): Promise<Record<string, unknown>> {
+    return this.cartoesService.listarCartoes(query, usuarioAutenticadoId);
   }
 
   @Get("faturas")
-  async listarFaturas(@Query() query: Record<string, unknown>): Promise<Record<string, unknown>> {
-    return this.cartoesService.listarFaturas(query);
+  async listarFaturas(
+    @Query() query: Record<string, unknown>,
+    @UsuarioAtualId() usuarioAutenticadoId: string,
+  ): Promise<Record<string, unknown>> {
+    return this.cartoesService.listarFaturas(query, usuarioAutenticadoId);
   }
 }

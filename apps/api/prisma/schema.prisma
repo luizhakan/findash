@@ -113,6 +113,8 @@ model Usuario {
   removido_em         DateTime?
   carteiras           Carteira[]
   cartoes             Cartao[]
+  faturas_cartao      FaturaCartao[]
+  compras_cartao      CompraCartao[]
   movimentacoes       Movimentacao[]
   importacoes_csv     ImportacaoCsv[]
   itens_importacao    ItemImportacaoCsv[]
@@ -146,8 +148,8 @@ model Carteira {
   nome                      String
   tipo_carteira             TipoCarteira
   moeda                     String                                @default("BRL")
-  saldo_inicial             Decimal                               @db.Decimal(18, 2)
-  saldo_atual               Decimal                               @db.Decimal(18, 2)
+  saldo_inicial             Decimal                               @banco.Decimal(18, 2)
+  saldo_atual               Decimal                               @banco.Decimal(18, 2)
   ativa                     Boolean                               @default(true)
   arquivada                 Boolean                               @default(false)
   criada_em                 DateTime                              @default(now())
@@ -155,6 +157,7 @@ model Carteira {
   usuario_rel               Usuario                               @relation(fields: [usuario_id], references: [id], onDelete: Cascade)
   movimentacoes             Movimentacao[]
   importacoes_csv           ImportacaoCsv[]
+  itens_importacao_csv      ItemImportacaoCsv[]
   transferencias_origem     TransferenciaInterna[]                @relation("transferencias_origem")
   transferencias_destino    TransferenciaInterna[]                @relation("transferencias_destino")
   recorrencias              LancamentoRecorrente[]
@@ -172,15 +175,15 @@ model Movimentacao {
   carteira_id                       String
   modo                              ModoMovimentacao
   tipo                              TipoMovimentacao
-  valor                             Decimal                @db.Decimal(18, 2)
+  valor                             Decimal                @banco.Decimal(18, 2)
   descricao                         String
   data_movimentacao                 DateTime
-  saldo_pos_movimento_origem        Decimal?               @db.Decimal(18, 2)
+  saldo_pos_movimento_origem        Decimal?               @banco.Decimal(18, 2)
   id_origem                         String?
   fonte_origem                      FonteOrigemMovimentacao
   parcelamento_modo                 ModoParcelamento?
   parcelamento_quantidade           Int?
-  parcelamento_valor_parcela_fixa   Decimal?               @db.Decimal(18, 2)
+  parcelamento_valor_parcela_fixa   Decimal?               @banco.Decimal(18, 2)
   criado_em                         DateTime               @default(now())
   usuario_rel                       Usuario                @relation(fields: [usuario_id], references: [id], onDelete: Cascade)
   carteira_rel                      Carteira               @relation(fields: [carteira_id], references: [id], onDelete: Cascade)
@@ -200,7 +203,7 @@ model TransferenciaInterna {
   usuario_id            String
   carteira_origem_id    String
   carteira_destino_id   String
-  valor                 Decimal      @db.Decimal(18, 2)
+  valor                 Decimal      @banco.Decimal(18, 2)
   descricao             String
   data_movimentacao     DateTime
   movimentacao_debito_id String      @unique
@@ -264,7 +267,7 @@ model Cartao {
   usuario_id        String
   nome              String
   bandeira          BandeiraCartao
-  limite_total      Decimal       @db.Decimal(18, 2)
+  limite_total      Decimal       @banco.Decimal(18, 2)
   dia_fechamento    Int
   dia_vencimento    Int
   ativo             Boolean       @default(true)
@@ -286,9 +289,9 @@ model FaturaCartao {
   referencia        String
   data_fechamento   DateTime
   data_vencimento   DateTime
-  valor_compras     Decimal         @default(0) @db.Decimal(18, 2)
-  valor_juros_manual Decimal        @default(0) @db.Decimal(18, 2)
-  valor_total       Decimal         @default(0) @db.Decimal(18, 2)
+  valor_compras     Decimal         @default(0) @banco.Decimal(18, 2)
+  valor_juros_manual Decimal        @default(0) @banco.Decimal(18, 2)
+  valor_total       Decimal         @default(0) @banco.Decimal(18, 2)
   criado_em         DateTime        @default(now())
   atualizado_em     DateTime        @updatedAt
   usuario_rel       Usuario         @relation(fields: [usuario_id], references: [id], onDelete: Cascade)
@@ -306,7 +309,7 @@ model CompraCartao {
   cartao_id           String
   fatura_destino_id   String
   descricao           String
-  valor_total         Decimal              @db.Decimal(18, 2)
+  valor_total         Decimal              @banco.Decimal(18, 2)
   data_compra         DateTime
   criado_em           DateTime             @default(now())
   atualizado_em       DateTime             @updatedAt
@@ -324,7 +327,7 @@ model ParcelaCompraCartao {
   id             String        @id @default(cuid())
   compra_id      String
   numero         Int
-  valor          Decimal       @db.Decimal(18, 2)
+  valor          Decimal       @banco.Decimal(18, 2)
   data_vencimento DateTime
   status         StatusParcela @default(ABERTA)
   criado_em      DateTime      @default(now())
@@ -342,7 +345,7 @@ model LancamentoRecorrente {
   descricao         String
   modo              ModoMovimentacao
   tipo              TipoMovimentacao
-  valor             Decimal                        @db.Decimal(18, 2)
+  valor             Decimal                        @banco.Decimal(18, 2)
   periodicidade     PeriodicidadeRecorrencia
   dia_execucao      Int
   data_inicio       DateTime
@@ -366,7 +369,7 @@ model OcorrenciaLancamentoRecorrente {
   usuario_id        String
   competencia       String
   data_prevista     DateTime
-  valor             Decimal                     @db.Decimal(18, 2)
+  valor             Decimal                     @banco.Decimal(18, 2)
   status            StatusOcorrenciaRecorrencia @default(PENDENTE)
   criado_em         DateTime                    @default(now())
   recorrencia_rel   LancamentoRecorrente        @relation(fields: [recorrencia_id], references: [id], onDelete: Cascade)
@@ -383,9 +386,9 @@ model OrcamentoCategoria {
   categoria             CategoriaOrcamento
   competencia           String
   moeda                 String              @default("BRL")
-  limite_mensal         Decimal             @db.Decimal(18, 2)
-  valor_consumido       Decimal             @default(0) @db.Decimal(18, 2)
-  percentual_consumido  Decimal             @default(0) @db.Decimal(8, 2)
+  limite_mensal         Decimal             @banco.Decimal(18, 2)
+  valor_consumido       Decimal             @default(0) @banco.Decimal(18, 2)
+  percentual_consumido  Decimal             @default(0) @banco.Decimal(8, 2)
   alertas_ativos        Json
   ativo                 Boolean             @default(true)
   criado_em             DateTime            @default(now())
@@ -404,7 +407,7 @@ model RegistroOrcamento {
   usuario_id          String
   id_movimentacao     String
   tipo_registro       TipoRegistroOrcamento
-  valor               Decimal              @db.Decimal(18, 2)
+  valor               Decimal              @banco.Decimal(18, 2)
   criado_em           DateTime             @default(now())
   orcamento_rel       OrcamentoCategoria   @relation(fields: [orcamento_id], references: [id], onDelete: Cascade)
   usuario_rel         Usuario              @relation(fields: [usuario_id], references: [id], onDelete: Cascade)
